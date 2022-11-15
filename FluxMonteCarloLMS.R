@@ -6,7 +6,7 @@
 
 # Flux function
 final.result = function(MW.PCB, H0.mean, H0.error, 
-         C.PCB.water.mean, C.PCB.water.error, C.PCB.air.mean, C.PCB.air.error, nOrtho.Cl, Kow.mean, Kow.error)
+         C.PCB.water.mean, C.PCB.water.error, nOrtho.Cl, Kow.mean, Kow.error)
 {
 # fixed parameters
 
