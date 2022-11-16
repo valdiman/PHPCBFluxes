@@ -85,18 +85,17 @@ F.PCB.aw
 
 }
 
-pc <- read.csv("Variables congener1.csv") # change 1 to 6
+pc <- read.csv("ChemicalProperties.csv")
 Congener <- pc$Congener
 MW.PCB <- pc$MW.PCB
 H0.mean <- pc$H0
 H0.error <- pc$X
-C.PCB.water.mean <- pc$C.PCB.water #pg/L
-C.PCB.water.error <- pc$X.2
-C.PCB.air.mean <- pc$C.PCB.air #pg/m3
-C.PCB.air.error <- pc$X.3
 nOrtho.Cl <- pc$nOrtho.Cl
 Kow.mean <- pc$Kow
 Kow.error <- pc$X.1
+
+conc <- read.csv("WaterConcetrations.csv")
+wc <- conc$WatgerConcentration
 
 meteor <- read.csv("Meteor.csv") # change q from 1 to 6
 q <- 1
