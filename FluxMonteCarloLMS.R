@@ -18,7 +18,7 @@ F.PCB.aw <- NULL
 for (replication in 1:5) 
 {
 
-# random parameters
+# Random parameters
 # Parameters for calculating Delta Uaw
 a <- rnorm(1, 0.085, 0.007)
 b <- rnorm(1, 1, 0.5)
@@ -46,7 +46,7 @@ T.water <- rnorm(1, twater.mean, twater.error) # [C]
 # Air temperature
 T.air <- rnorm(1, tair.mean, tair.error) # [C]
 
-# computed values
+# Computed values
 # Henry's law constant corrections
 # PCB internal energy for the transfer of water to air transfer
 DeltaUaw <- (a*MW.PCB-b*nOrtho.Cl+c)*1000 # [J/mol]
@@ -109,9 +109,9 @@ if(u > 5){
 }
 
 # Air-water mass transfer
-mtc.PCB <- ((1/V.PCB.water+1/(V.PCB.air*K.final)))^(-1) #cm/s
+mtc.PCB <- ((1/V.PCB.water+1/(V.PCB.air*K.final)))^(-1) # [cm/s]
 # Flux calculations
-F.PCB.aw <- c(F.PCB.aw, mtc.PCB*(C.PCB.water.f)) #ng/m2/d
+F.PCB.aw <- c(F.PCB.aw, mtc.PCB*(C.PCB.water.f)) # [ng/m2/d]
 
 }
 
