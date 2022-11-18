@@ -29,8 +29,10 @@ fDOM012019 <- readNWISdv(USGSPH, "32295",
                               "2019-01-25", "2019-02-20")
 fDOM2022 <- readNWISdv(USGSPH, "32295",
                    "2022-06-01", "2022-09-01")
-# Specific conductance, water, unfiltered, microsiemens per centimeter
+# Specific conductance, water, unfiltered, microsiemens per centimeter (uS/cm)
 # at 25 degrees Celsius
+# No need to correct, levels here are around rain (2 to 100 uS/cm)
+# seawater ~ 50 mS/cm
 WaterConduct082018 <- readNWISdv(USGSPH, "00095",
                          "2018-08-20", "2018-09-01")
 WaterConduct112018 <- readNWISdv(USGSPH, "00095",
