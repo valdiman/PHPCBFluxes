@@ -10,12 +10,14 @@ library(dataRetrieval) # read data from USGS
 USGSPH <- "14211720" # Station @ WILLAMETTE RIVER AT PORTLAND, OR
 # Water temperature in C
 Watertemp082018 <- readNWISdv(USGSPH, "00010",
-                          "2018-08-20", "2018-09-01")
+                          "2018-08-17", "2018-8-28") # 21, 22, 23, 24, 25
 Watertemp112018 <- readNWISdv(USGSPH, "00010",
-                              "2018-11-26", "2018-12-02")
+                              "2018-11-24", "2018-12-03") # 27, 28, 30, 01
 Watertemp012019 <- readNWISdv(USGSPH, "00010",
-                              "2019-01-25", "2019-02-20")
-Watertemp22022 <- readNWISdv(USGSPH, "00010",
+                              "2019-01-23", "2019-01-31") # 26, 27
+Watertemp022019 <- readNWISdv(USGSPH, "00010",
+                              "2019-02-13", "2019-02-22") # 17, 18
+Watertemp072022 <- readNWISdv(USGSPH, "00010",
                      "2022-06-01", "2022-09-01")
 
 # Dissolved organic matter fluorescence (fDOM),
