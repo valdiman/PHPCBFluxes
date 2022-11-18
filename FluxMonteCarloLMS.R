@@ -27,27 +27,25 @@ c <- rnorm(1, 32.7, 1.6)
 a2 <- rnorm(1, 0.13, 0.02) 
 b2 <- rnorm(1, 2.9, 1.2)
 c2 <- rnorm(1, 47.8, 4.3)
-e <- abs(rnorm(1, e.mean, e.error))
-n <- abs(rnorm(1, n.mean, n.error))
 # Henry's law constant 
 H0 <- rnorm(1, H0.mean, H0.error) # [Pa m3/mol]
 # Octanol-water partition coefficient
 Kow <- rnorm(1,Kow.mean, Kow.error) # [Lwater/Loctanol] 
 # atmospheric pressure
 P <- rnorm(1, P.mean, P.error) # [mbar]
-#u <- abs(10^(rnorm(1, u10.mean, u10.error))) #m/s
-u <- rweibull(1, shape = e, scale = n) #m/s
+u <- abs(10^(rnorm(1, u10.mean, u10.error))) # [m/s] missing
+# K600 <- missing
 # PCB water concentration
 C.PCB.water <- abs(rnorm(1, C.PCB.water.mean, C.PCB.water.error)) # [ng/m3]
 # DOC, error of 25%
-DOC <- abs(rnorm(1, 1.5, 0.375)) # [mg/L]
+DOC <- abs(rnorm(1, 1.5, 0.375)) # [mg/L] Missing
 # Water temperature
 T.water <- rnorm(1, twater.mean, twater.error) # [C]
 # Air temperature
 T.air <- rnorm(1, tair.mean, tair.error) # [C]
 
 # Computed values
-# Henry's law constant corrections
+# Henry's law constant (HLC) corrections
 # PCB internal energy for the transfer of water to air transfer
 DeltaUaw <- (a*MW.PCB-b*nOrtho.Cl+c)*1000 # [J/mol]
 # Transform HLC to K
@@ -68,26 +66,28 @@ Kow.water.t <- 10^(Kow)*exp(-(DeltaUow/R)*(1/(T.water+273.15)-1/T)) # [Loctanol/
 Kdoc.t <- 0.06*Kow.water.t # [Ldoc/Lwater]
 
 # Freely dissolved water concentration calculations
-C.PCB.water.f <- C.PCB.water/(1+Kdoc.t*DOC/1000^2)#ng/m3
+C.PCB.water.f <- C.PCB.water/(1 + Kdoc.t*DOC/1000^2) # [ng/m3]
 
 # Air-water mass transfer calculations
 # (1) Air side mass transfer calculations
-# Water diffusivity in air corrected by air temperature and atmospheric pressure
+# Water diffusivity in air corrected by air
+# temperature and atmospheric pressure
 D.water.air <- (10^(-3)*1013.25*((273.15+T.air)^1.75*((1/28.97) +
                 (1/18.0152))^(0.5))/P/(20.1^(1/3) + 9.5^(1/3))^2) # [cm2/s]
 # PCB diffusivity in air
 D.PCB.air <- D.water.air*(MW.PCB/18.0152)^(-0.5) # [cm2/s]
-# Water vapor exchange velocity in air
-V.water.air <- 0.2*u + 0.3 # [cm/s] from eq. 20-15
+# Water vapor exchange velocity in air (from eq. 20-15)
+V.water.air <- 0.2*u + 0.3 # u @10 meter [cm/s]
 # Air side mass transfer
 V.PCB.air <- V.water.air*(D.PCB.air/D.water.air)^(2/3) # [cm/s]
-# (2) water side mass transfer calculations
+
+# (2) Water side mass transfer calculations
 # Viscosity of water at water temperature
-visc.water <- 10^(-4.5318-220.57/(149.39-(273.15 + T.water)))
+visc.water <- 10^(-4.5318-220.57/(149.39 - (273.15 + T.water)))
 # Water density corrected at water temperature
-dens.water <- (999.83952+16.945176*T.water-7.9870401*10^-3*T.water^2
-               -46.170461*10^-6*3+105.56302*10^-9*T.water^4-
-                 280.54253*10^-12*T.water^5)/(1+16.87985*10^-3*T.water)
+dens.water <- (999.83952+16.945176*T.water - 7.9870401*10^-3*T.water^2
+               - 46.170461*10^-6*3 + 105.56302*10^-9*T.water^4 -
+                 280.54253*10^-12*T.water^5)/(1 + 16.87985*10^-3*T.water)
 # Kinematic viscosity of water
 v.water <- visc.water/dens.water*10000 # [cm2/s]
 # CO2 diffusivity in water at water temperature
@@ -98,15 +98,12 @@ D.PCB.water <- diff.co2*(MW.PCB/44.0094)^(-0.5) # [cm2/s]
 Sc.PCB.water <- v.water/D.PCB.water
 # CO2 Schmidt number in water
 Sc.co2.water <- v.water/diff.co2
-
-integrand <-function(u) {((e/u)*(u/n)^e)*exp(-(u/n)^e)*(0.000125*u^1.64)}# cm/s
-k600 <- integrate(integrand, lower = 0, upper = Inf) #cm/s
-
+# Water side mass transfer (from eq. 20-24)
 if(u > 5){
-  V.PCB.water <- k600$value*(Sc.PCB.water/Sc.co2.water)^(-0.5)  
+  V.PCB.water <- k600*(Sc.PCB.water/Sc.co2.water)^(-0.5)  
 } else {
-  V.PCB.water <- k600$value*(Sc.PCB.water/Sc.co2.water)^(-2/3)
-}
+  V.PCB.water <- k600*(Sc.PCB.water/Sc.co2.water)^(-2/3)
+} # [cm/s]
 
 # Air-water mass transfer
 mtc.PCB <- ((1/V.PCB.water+1/(V.PCB.air*K.final)))^(-1) # [cm/s]
