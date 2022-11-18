@@ -34,11 +34,10 @@ Kow <- rnorm(1,Kow.mean, Kow.error) # [Lwater/Loctanol]
 # atmospheric pressure
 P <- rnorm(1, P.mean, P.error) # [mbar]
 u <- abs(10^(rnorm(1, u10.mean, u10.error))) # [m/s] missing
-# K600 <- missing
 # PCB water concentration
 C.PCB.water <- abs(rnorm(1, C.PCB.water.mean, C.PCB.water.error)) # [ng/m3]
-# DOC, error of 25%
-DOC <- abs(rnorm(1, 1.5, 0.375)) # [mg/L] Missing
+# DOC (Spencer et al 2012)
+DOC <- abs(rnorm(1, 2, 0.3)) # [mg/L]
 # Water temperature
 T.water <- rnorm(1, twater.mean, twater.error) # [C]
 # Air temperature
@@ -98,6 +97,8 @@ D.PCB.water <- diff.co2*(MW.PCB/44.0094)^(-0.5) # [cm2/s]
 Sc.PCB.water <- v.water/D.PCB.water
 # CO2 Schmidt number in water
 Sc.co2.water <- v.water/diff.co2
+# k600 calculations, u in [m/s]
+k600 <- (4.46 + 7.11*u)/60/60 #[cm/s]
 # Water side mass transfer (from eq. 20-24)
 if(u > 5){
   V.PCB.water <- k600*(Sc.PCB.water/Sc.co2.water)^(-0.5)  
