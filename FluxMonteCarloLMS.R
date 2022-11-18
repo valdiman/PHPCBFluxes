@@ -135,10 +135,6 @@ wc <- conc$WatgerConcentration
 # Meteorological conditions
 meteor <- read.csv("Meteor.csv") # change q from 1 to 6
 q <- 1
-e.mean <- meteor$e[q]
-e.error <- meteor$e.error[q]
-n.mean <- meteor$n[q]
-n.error <- meteor$n.error[q]
 P.mean <- meteor$P[q]
 P.error <- meteor$P.error[q]
 u10.mean <- meteor$u10[q]
