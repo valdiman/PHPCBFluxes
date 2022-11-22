@@ -21,7 +21,7 @@ Kow.error <- cp$Kow.error
 # Read water concentrations
 wc.raw <- read.csv("WaterConcentration.csv")
 # Different approaches to use the data
-# Prepare data
+# Prepare data [pg/L] = [ng/m3]
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
 wc.2 <- cbind(wc.raw$LocationID, wc.1)
 colnames(wc.2)[1] <- "LocationID"
@@ -87,7 +87,7 @@ H0 <- rnorm(1, H0.mean, H0.error) # [Pa m3/mol]
 # Octanol-water partition coefficient
 Kow <- rnorm(1, Kow.mean, Kow.error) # [Lwater/Loctanol] 
 # PCB water concentration
-C.PCB.water <- abs(rnorm(1, C.PCB.water.mean, C.PCB.water.error)) # [ng/m3]
+C.PCB.water <- abs(rnorm(1, C.PCB.water.mean, C.PCB.water.error)) # [pg/L]
 # DOC (Spencer et al 2012)
 DOC <- abs(rnorm(1, 2, 0.3)) # [mg/L]
 # Water temperature
@@ -97,7 +97,7 @@ T.air <- rnorm(1, tair.mean, tair.error) # [C]
 # atmospheric pressure
 P <- rnorm(1, P.mean, P.error) # [mbar]
 # Wind speed @10 m
-u <- abs(10^(rnorm(1, u10.mean, u10.error))) # [m/s] missing
+u <- abs(rnorm(1, u10.mean, u10.error)) # [m/s] missing
 
 # Computed values
 # Henry's law constant (HLC) corrections
@@ -118,7 +118,7 @@ DeltaUow <- DeltaUoa + DeltaUaw # [J/mol]
 # Octanol-water partition coefficient corrected by water temperature
 Kow.water.t <- 10^(Kow)*exp(-(DeltaUow/R)*(1/(T.water + 273.15)-1/T)) # [Loctanol/Lwater]
 # DOC-water partition coefficient
-Kdoc.t <- 0.06*Kow.water.t # [Ldoc/Lwater]
+Kdoc.t <- 0.06*Kow.water.t # [Lwater/kgdoc]
 
 # Freely dissolved water concentration calculations
 C.PCB.water.f <- C.PCB.water/(1 + Kdoc.t*DOC/1000^2) # [ng/m3]
@@ -153,7 +153,7 @@ D.PCB.water <- diff.co2*(MW.PCB/44.0094)^(-0.5) # [cm2/s]
 Sc.PCB.water <- v.water/D.PCB.water
 # CO2 Schmidt number in water
 Sc.co2.water <- v.water/diff.co2
-# k600 calculations, u in [m/s]
+# k600 calculations, u in [m/s], k600 originally [cm/h]
 k600 <- (4.46 + 7.11*u)/60/60 #[cm/s]
 # Water side mass transfer (from eq. 20-24)
 if(u > 5){
@@ -165,7 +165,7 @@ if(u > 5){
 # Air-water mass transfer
 mtc.PCB <- ((1/V.PCB.water+1/(V.PCB.air*K.final)))^(-1) # [cm/s]
 # Flux calculations
-F.PCB.aw <- c(F.PCB.aw, mtc.PCB*(C.PCB.water.f)) # [ng/m2/d]
+F.PCB.aw <- c(F.PCB.aw, mtc.PCB*(C.PCB.water.f)*(60*60*24)/100) # [ng/m2/d]
 
 }
 
@@ -193,8 +193,8 @@ sss <- sd(final.result$colSums.result.)
 q2.5 <- quantile(final.result$colSums.result., 0.025)
 q97.5 <- quantile(final.result$colSums.result., 0.975)
 tPCBFlux <- c(mmm, sss, q2.5, q97.5)
-names(tPCBFlux) <- c("Mean (pg/m2/d)", "Std (pg/m2/d)",
-                     "2.5%CL (pg/m2/d)", "97.5%CL (pg/m2/d)")
+names(tPCBFlux) <- c("Mean (ng/m2/d)", "Std (ng/m2/d)",
+                     "2.5%CL (ng/m2/d)", "97.5%CL (ng/m2/d)")
 
 # Plots -------------------------------------------------------------------
 
