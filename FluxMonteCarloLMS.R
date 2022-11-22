@@ -71,7 +71,7 @@ T <- 298.15 # [K]
 
 F.PCB.aw <- NULL
 # number of replicates for Monte Carlo simulation
-for (replication in 1:5) {
+for (replication in 1:1000) {
 
 # Random parameters
 # Parameters for calculating Delta Uaw
@@ -199,7 +199,7 @@ names(tPCBFlux) <- c("Mean (ng/m2/d)", "Std (ng/m2/d)",
 # Plots -------------------------------------------------------------------
 
 # Histogram
-hist(as.numeric(final.result[,1]), main = "Volatilization Flux Total PCBs (9/20/10 20:00)",
+hist(as.numeric(final.result[,1]), main = "Volatilization Flux Total PCBs",
      xlab = "Volatilization Flux Total PCB (ng/m2/d)", border = "blue", col = "green",
      xlim = c(min(as.numeric(final.result[,1])), max(as.numeric(final.result[,1]))))
 abline(v = median(as.numeric(final.result[,1])), col = "blue", lwd = 3)
