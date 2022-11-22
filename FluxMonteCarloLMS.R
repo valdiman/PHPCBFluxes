@@ -4,10 +4,66 @@
 # Monte Carlo simulation is included
 # No needs of R packages
 
+# Chemical properties -----------------------------------------------------
+
+# Read chemical properties
+cp <- read.csv("ChemicalProperties.csv")
+Congener <- cp$Congener
+MW.PCB <- cp$MW.PCB
+nOrtho.Cl <- cp$nOrtho.Cl
+H0.mean <- cp$H0
+H0.error <- cp$H0.error
+Kow.mean <- cp$Kow
+Kow.error <- cp$Kow.error
+
+# Water concentrations ----------------------------------------------------
+
+# Read water concentrations
+wc.raw <- read.csv("WaterConcentration.csv")
+# Different approaches to use the data
+# Prepare data
+wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
+wc.2 <- cbind(wc.raw$LocationID, wc.1)
+colnames(wc.2)[1] <- "LocationID"
+wc.ave <- sapply(wc.1, mean, na.rm = TRUE)
+wc.sd <- sapply(wc.1, sd, na.rm = TRUE)
+wd.3 <- data.frame(t(rbind(wc.ave, wc.sd)))
+C.PCB.water.mean <- wd.3$wc.ave
+C.PCB.water.error <- wd.3$wc.sd
+
+# (1) Mean and standard deviation
+
+# (2) Geometric mean and geometric standard deviation
+
+# (3) Selected samples
+
+# Meteorological data -----------------------------------------------------
+
+# Read meteorological conditions
+meteor <- read.csv("Meteorological.csv")
+# Columns are the different water sampling periods
+# except last columns are the passive sampler deployment
+# Columns 2 to 11 definitions: sampl.aug.2018.av,sampl.aug.2018.sd,
+# sampl.nov.2018.av, sampl.nov.2018.sd, sampl.jan.2019.av,
+# sampl.jan.2019.sd, sampl.feb.2019.av, sampl.feb.2019.sd,
+# sampl.sum.2020.av, sampl.sum.2022.sd
+# m is column number
+m <- 2 # from 2 to 11
+tair.mean <- meteor[1, m]
+tair.error <- meteor[1, m+1]
+twater.mean <- meteor[2, m]
+twater.error <- meteor[2, m+1]
+u10.mean <- meteor[3, m]
+u10.error <- meteor[3, m+1]
+P.mean <- meteor[4, m]
+P.error <- meteor[4, m +1]
+
+# Flux calculations -------------------------------------------------------
+
 # Flux function
 final.result = function(MW.PCB, H0.mean, H0.error, 
-         C.PCB.water.mean, C.PCB.water.error, nOrtho.Cl, Kow.mean, Kow.error)
-{
+         C.PCB.water.mean, C.PCB.water.error, nOrtho.Cl,
+         Kow.mean, Kow.error) {
 # fixed parameters
 
 R <- 8.3144 # [Pa m3/K/mol]
@@ -15,8 +71,7 @@ T <- 298.15 # [K]
 
 F.PCB.aw <- NULL
 # number of replicates for Monte Carlo simulation
-for (replication in 1:5) 
-{
+for (replication in 1:5) {
 
 # Random parameters
 # Parameters for calculating Delta Uaw
@@ -30,10 +85,7 @@ c2 <- rnorm(1, 47.8, 4.3)
 # Henry's law constant 
 H0 <- rnorm(1, H0.mean, H0.error) # [Pa m3/mol]
 # Octanol-water partition coefficient
-Kow <- rnorm(1,Kow.mean, Kow.error) # [Lwater/Loctanol] 
-# atmospheric pressure
-P <- rnorm(1, P.mean, P.error) # [mbar]
-u <- abs(10^(rnorm(1, u10.mean, u10.error))) # [m/s] missing
+Kow <- rnorm(1, Kow.mean, Kow.error) # [Lwater/Loctanol] 
 # PCB water concentration
 C.PCB.water <- abs(rnorm(1, C.PCB.water.mean, C.PCB.water.error)) # [ng/m3]
 # DOC (Spencer et al 2012)
@@ -42,6 +94,10 @@ DOC <- abs(rnorm(1, 2, 0.3)) # [mg/L]
 T.water <- rnorm(1, twater.mean, twater.error) # [C]
 # Air temperature
 T.air <- rnorm(1, tair.mean, tair.error) # [C]
+# atmospheric pressure
+P <- rnorm(1, P.mean, P.error) # [mbar]
+# Wind speed @10 m
+u <- abs(10^(rnorm(1, u10.mean, u10.error))) # [m/s] missing
 
 # Computed values
 # Henry's law constant (HLC) corrections
@@ -60,7 +116,7 @@ DeltaUoa <- (-a2*MW.PCB+b2*nOrtho.Cl-c2)*1000 # [J/mol]
 # PCB internal energy for the transfer of octanol-water
 DeltaUow <- DeltaUoa + DeltaUaw # [J/mol]
 # Octanol-water partition coefficient corrected by water temperature
-Kow.water.t <- 10^(Kow)*exp(-(DeltaUow/R)*(1/(T.water+273.15)-1/T)) # [Loctanol/Lwater]
+Kow.water.t <- 10^(Kow)*exp(-(DeltaUow/R)*(1/(T.water + 273.15)-1/T)) # [Loctanol/Lwater]
 # DOC-water partition coefficient
 Kdoc.t <- 0.06*Kow.water.t # [Ldoc/Lwater]
 
@@ -117,47 +173,32 @@ F.PCB.aw
 
 }
 
-# Read chemical properties, concentrations and meteorological conditions
-# Chemical properties
-pc <- read.csv("ChemicalProperties.csv")
-Congener <- pc$Congener
-MW.PCB <- pc$MW.PCB
-H0.mean <- pc$H0
-H0.error <- pc$H0.error
-nOrtho.Cl <- pc$nOrtho.Cl
-Kow.mean <- pc$Kow
-Kow.error <- pc$Kow.error
-
-# Water concentrations
-conc <- read.csv("WaterConcetrations.csv")
-wc <- conc$WatgerConcentration
-
-# Meteorological conditions
-meteor <- read.csv("Meteor.csv") # change q from 1 to 6
-q <- 1
-P.mean <- meteor$P[q]
-P.error <- meteor$P.error[q]
-u10.mean <- meteor$u10[q]
-u10.error <- meteor$u10.error[q]
-twater.mean <- meteor$twater[q]
-twater.error <- meteor$twater.error[q]
-tair.mean <- meteor$tair[q]
-tair.error <- meteor$tair.error[q]
+# Final calculations ------------------------------------------------------
 
 Num.Congener <- length(Congener)
 
 result <- NULL
-for (i in 1:Num.Congener)
-{
+for (i in 1:Num.Congener) {
 	result <- rbind(result, final.result(MW.PCB[i], H0.mean[i], H0.error[i], 
-         C.PCB.water.mean[i], C.PCB.water.error[i], C.PCB.air.mean[i], C.PCB.air.error[i],
-         nOrtho.Cl[i], Kow.mean[i], Kow.error[i]))
+         C.PCB.water.mean[i], C.PCB.water.error[i], nOrtho.Cl[i],
+         Kow.mean[i], Kow.error[i]))
 }
 
-final.result = data.frame(colSums(result))
-#write.csv(final.result, file="Results/Sum/Volatilization/FMCLMV6.csv")
+# Sum of all congeners per repetition
+final.result <- data.frame(colSums(result, na.rm = TRUE))
 
-#histogram
+# Summary of the total PCBs
+mmm <- mean(final.result$colSums.result.)
+sss <- sd(final.result$colSums.result.)
+q2.5 <- quantile(final.result$colSums.result., 0.025)
+q97.5 <- quantile(final.result$colSums.result., 0.975)
+tPCBFlux <- c(mmm, sss, q2.5, q97.5)
+names(tPCBFlux) <- c("Mean (pg/m2/d)", "Std (pg/m2/d)",
+                     "2.5%CL (pg/m2/d)", "97.5%CL (pg/m2/d)")
+
+# Plots -------------------------------------------------------------------
+
+# Histogram
 hist(as.numeric(final.result[,1]), main = "Volatilization Flux Total PCBs (9/20/10 20:00)",
      xlab = "Volatilization Flux Total PCB (ng/m2/d)", border = "blue", col = "green",
      xlim = c(min(as.numeric(final.result[,1])), max(as.numeric(final.result[,1]))))
