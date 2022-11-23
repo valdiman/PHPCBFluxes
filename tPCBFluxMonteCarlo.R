@@ -1,5 +1,7 @@
-# Code to estimate individual PCB fluxes from Portland Harbor
+# Code to estimate total PCB fluxes from Portland Harbor
 # using 2018 and 2019 water samples
+# The code estimate the flux of each congener, and
+# sum them to get total PCB
 # Air data are not used in these calculations
 # Monte Carlo simulation is included
 # No needs of R packages
