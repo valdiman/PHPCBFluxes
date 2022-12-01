@@ -79,28 +79,60 @@ ggplot(tPCB.mean, aes(y = tPCB.ave, x = Site)) +
                                    angle = 60, hjust = 1),
         axis.title.x = element_text(face = "bold", size = 7))
 
-# Read water concentrations
-wc.raw <- read.csv("WaterConcentration.csv")
-# Different approaches to use the data
+# PCB profiles plot -------------------------------------------------------
+# Create average PCB congener profiles
+
+wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
+tmp <- rowSums(wc.1, na.rm = TRUE)
+prof <- sweep(wc.1, 1, tmp, FUN = "/")
+prof.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.ave) <- c("mean")
+prof.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.sd) <- c("sd")
+congener <- row.names(prof.ave)
+prof.ave <- cbind(congener, prof.ave$mean, prof.sd$sd)
+colnames(prof.ave) <- c("congener", "mean", "sd")
+prof.ave <- data.frame(prof.ave)
+prof.ave$mean <- as.numeric(as.character(prof.ave$mean))
+prof.ave$sd <- as.numeric(as.character(prof.ave$sd))
+prof.ave$congener <- as.character(prof.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.ave$congener <- factor(prof.ave$congener,
+                            levels = unique(prof.ave$congener))
+
+# PCB Profile plot (Figure 7)
+# Need to check the labels
+ggplot(prof.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.35) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # Prepare data [pg/L] = [ng/m3]
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
 wc.2 <- cbind(wc.raw$LocationID, wc.1)
 colnames(wc.2)[1] <- "LocationID"
-# (1) All samples
-# (1) Mean and standard deviation
-wc.ave <- sapply(wc.1, mean, na.rm = TRUE)
-wc.sd <- sapply(wc.1, sd, na.rm = TRUE)
-wc.3 <- data.frame(t(rbind(wc.ave, wc.sd)))
-C.PCB.water.mean <- wc.3$wc.ave
-C.PCB.water.sd <- wc.3$wc.sd
-# (II) Geometric mean and geometric standard deviation
-# Log 10 individual PCBs
-wc.log <- log10(wc.1)
-wc.gm <- exp(sapply(wc.log, mean, na.rm = TRUE))
-wc.gsd <- exp(sapply(wc.log, sd, na.rm = TRUE))
-wc.4 <- data.frame(t(rbind(wc.gm, wc.gsd)))
-C.PCB.water.gm <- wc.4$wc.gm
-C.PCB.water.gsd <- wc.4$wc.gsd
+
 # (2) Especific site
 # Selected site
 wc.POH001 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH001', ]
