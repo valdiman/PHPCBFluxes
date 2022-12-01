@@ -81,7 +81,7 @@ ggplot(tPCB.mean, aes(y = tPCB.ave, x = Site)) +
 
 # PCB profiles plot -------------------------------------------------------
 # Create average PCB congener profiles
-
+# (1) All samples
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
 tmp <- rowSums(wc.1, na.rm = TRUE)
 prof <- sweep(wc.1, 1, tmp, FUN = "/")
@@ -100,8 +100,7 @@ prof.ave$congener <- as.character(prof.ave$congener)
 prof.ave$congener <- factor(prof.ave$congener,
                             levels = unique(prof.ave$congener))
 
-# PCB Profile plot (Figure 7)
-# Need to check the labels
+# PCB Profile plot
 ggplot(prof.ave, aes(x = congener, y = mean)) +
   geom_bar(position = position_dodge(), stat = "identity",
            fill = "black") +
@@ -128,12 +127,10 @@ ggplot(prof.ave, aes(x = congener, y = mean)) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
            size = 3, fontface = 1, angle = 90)
 
-# Prepare data [pg/L] = [ng/m3]
+# (2) Specific site
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
 wc.2 <- cbind(wc.raw$LocationID, wc.1)
 colnames(wc.2)[1] <- "LocationID"
-
-# (2) Especific site
 # Selected site
 wc.POH001 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH001', ]
 wc.POH002 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH002', ]
@@ -142,46 +139,325 @@ wc.POH004 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH004', ]
 wc.POH005 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH005', ]
 wc.POH006 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH006', ]
 wc.POH007 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH007', ]
-# Calculate mean and sd for each site
+# Calculate profile for each site
 # WCPCB_OR-POH001
-wc.POH001.ave <- sapply(wc.POH001[, 2:160], mean, na.rm = TRUE)
-wc.POH001.sd <- sapply(wc.POH001[, 2:160], sd, na.rm = TRUE)
-wc.POH001.2 <- data.frame(t(rbind(wc.POH001.ave, wc.POH001.sd)))
-C.PCB.water.POH001.mean <- wc.POH001.2$wc.POH001.ave
-C.PCB.water.POH001.sd <- wc.POH001.2$wc.POH001.sd
+tmp <- rowSums(wc.POH001[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH001[, 2:160], 1, tmp, FUN = "/")
+prof.POH001.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH001.ave) <- c("mean")
+prof.POH001.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH001.sd) <- c("sd")
+congener <- row.names(prof.POH001.ave)
+prof.POH001.ave <- cbind(congener, prof.POH001.ave$mean,
+                         prof.POH001.sd$sd)
+colnames(prof.POH001.ave) <- c("congener", "mean", "sd")
+prof.POH001.ave <- data.frame(prof.POH001.ave)
+prof.POH001.ave$mean <- as.numeric(as.character(prof.POH001.ave$mean))
+prof.POH001.ave$sd <- as.numeric(as.character(prof.POH001.ave$sd))
+prof.POH001.ave$congener <- as.character(prof.POH001.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH001.ave$congener <- factor(prof.POH001.ave$congener,
+                            levels = unique(prof.POH001.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH001.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # WCPCB_OR-POH002
-wc.POH002.ave <- sapply(wc.POH002[, 2:160], mean, na.rm = TRUE)
-wc.POH002.sd <- sapply(wc.POH002[, 2:160], sd, na.rm = TRUE)
-wc.POH002.2 <- data.frame(t(rbind(wc.POH002.ave, wc.POH002.sd)))
-C.PCB.water.POH002.mean <- wc.POH002.2$wc.POH002.ave
-C.PCB.water.POH002.sd <- wc.POH002.2$wc.POH002.sd
+tmp <- rowSums(wc.POH002[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH002[, 2:160], 1, tmp, FUN = "/")
+prof.POH002.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH002.ave) <- c("mean")
+prof.POH002.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH002.sd) <- c("sd")
+congener <- row.names(prof.POH002.ave)
+prof.POH002.ave <- cbind(congener, prof.POH002.ave$mean,
+                         prof.POH002.sd$sd)
+colnames(prof.POH002.ave) <- c("congener", "mean", "sd")
+prof.POH002.ave <- data.frame(prof.POH002.ave)
+prof.POH002.ave$mean <- as.numeric(as.character(prof.POH002.ave$mean))
+prof.POH002.ave$sd <- as.numeric(as.character(prof.POH002.ave$sd))
+prof.POH002.ave$congener <- as.character(prof.POH002.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH002.ave$congener <- factor(prof.POH002.ave$congener,
+                                   levels = unique(prof.POH002.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH002.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # WCPCB_OR-POH003
-wc.POH003.ave <- sapply(wc.POH003[, 2:160], mean, na.rm = TRUE)
-wc.POH003.sd <- sapply(wc.POH003[, 2:160], sd, na.rm = TRUE)
-wc.POH003.2 <- data.frame(t(rbind(wc.POH003.ave, wc.POH003.sd)))
-C.PCB.water.POH003.mean <- wc.POH003.2$wc.POH003.ave
-C.PCB.water.POH003.sd <- wc.POH003.2$wc.POH003.sd
+tmp <- rowSums(wc.POH003[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH003[, 2:160], 1, tmp, FUN = "/")
+prof.POH003.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH003.ave) <- c("mean")
+prof.POH003.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH003.sd) <- c("sd")
+congener <- row.names(prof.POH003.ave)
+prof.POH003.ave <- cbind(congener, prof.POH003.ave$mean,
+                         prof.POH003.sd$sd)
+colnames(prof.POH003.ave) <- c("congener", "mean", "sd")
+prof.POH003.ave <- data.frame(prof.POH003.ave)
+prof.POH003.ave$mean <- as.numeric(as.character(prof.POH003.ave$mean))
+prof.POH003.ave$sd <- as.numeric(as.character(prof.POH003.ave$sd))
+prof.POH003.ave$congener <- as.character(prof.POH003.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH003.ave$congener <- factor(prof.POH003.ave$congener,
+                                   levels = unique(prof.POH003.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH003.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # WCPCB_OR-POH004
-wc.POH004.ave <- sapply(wc.POH004[, 2:160], mean, na.rm = TRUE)
-wc.POH004.sd <- sapply(wc.POH004[, 2:160], sd, na.rm = TRUE)
-wc.POH004.2 <- data.frame(t(rbind(wc.POH004.ave, wc.POH004.sd)))
-C.PCB.water.POH004.mean <- wc.POH004.2$wc.POH004.ave
-C.PCB.water.POH004.sd <- wc.POH004.2$wc.POH004.sd
+tmp <- rowSums(wc.POH004[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH004[, 2:160], 1, tmp, FUN = "/")
+prof.POH004.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH004.ave) <- c("mean")
+prof.POH004.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH004.sd) <- c("sd")
+congener <- row.names(prof.POH004.ave)
+prof.POH004.ave <- cbind(congener, prof.POH004.ave$mean,
+                         prof.POH004.sd$sd)
+colnames(prof.POH004.ave) <- c("congener", "mean", "sd")
+prof.POH004.ave <- data.frame(prof.POH004.ave)
+prof.POH004.ave$mean <- as.numeric(as.character(prof.POH004.ave$mean))
+prof.POH004.ave$sd <- as.numeric(as.character(prof.POH004.ave$sd))
+prof.POH004.ave$congener <- as.character(prof.POH004.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH004.ave$congener <- factor(prof.POH001.ave$congener,
+                                   levels = unique(prof.POH004.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH004.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # WCPCB_OR-POH005
-wc.POH005.ave <- sapply(wc.POH005[, 2:160], mean, na.rm = TRUE)
-wc.POH005.sd <- sapply(wc.POH005[, 2:160], sd, na.rm = TRUE)
-wc.POH005.2 <- data.frame(t(rbind(wc.POH005.ave, wc.POH005.sd)))
-C.PCB.water.POH005.mean <- wc.POH005.2$wc.POH005.ave
-C.PCB.water.POH005.sd <- wc.POH005.2$wc.POH005.sd
+tmp <- rowSums(wc.POH005[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH005[, 2:160], 1, tmp, FUN = "/")
+prof.POH005.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH005.ave) <- c("mean")
+prof.POH005.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH005.sd) <- c("sd")
+congener <- row.names(prof.POH005.ave)
+prof.POH005.ave <- cbind(congener, prof.POH005.ave$mean,
+                         prof.POH005.sd$sd)
+colnames(prof.POH005.ave) <- c("congener", "mean", "sd")
+prof.POH005.ave <- data.frame(prof.POH005.ave)
+prof.POH005.ave$mean <- as.numeric(as.character(prof.POH005.ave$mean))
+prof.POH005.ave$sd <- as.numeric(as.character(prof.POH005.ave$sd))
+prof.POH005.ave$congener <- as.character(prof.POH005.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH005.ave$congener <- factor(prof.POH001.ave$congener,
+                                   levels = unique(prof.POH005.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH005.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
 # WCPCB_OR-POH006
-wc.POH006.ave <- sapply(wc.POH006[, 2:160], mean, na.rm = TRUE)
-wc.POH006.sd <- sapply(wc.POH006[, 2:160], sd, na.rm = TRUE)
-wc.POH006.2 <- data.frame(t(rbind(wc.POH006.ave, wc.POH006.sd)))
-C.PCB.water.POH006.mean <- wc.POH006.2$wc.POH006.ave
-C.PCB.water.POH006.sd <- wc.POH006.2$wc.POH006.sd
-# WCPCB_OR-POH007
-wc.POH007.ave <- sapply(wc.POH007[, 2:160], mean, na.rm = TRUE)
-wc.POH007.sd <- sapply(wc.POH007[, 2:160], sd, na.rm = TRUE)
-wc.POH007.2 <- data.frame(t(rbind(wc.POH007.ave, wc.POH007.sd)))
-C.PCB.water.POH007.mean <- wc.POH007.2$wc.POH007.ave
-C.PCB.water.POH007.sd <- wc.POH007.2$wc.POH007.sd
+tmp <- rowSums(wc.POH006[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH006[, 2:160], 1, tmp, FUN = "/")
+prof.POH006.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH006.ave) <- c("mean")
+prof.POH006.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH006.sd) <- c("sd")
+congener <- row.names(prof.POH006.ave)
+prof.POH006.ave <- cbind(congener, prof.POH006.ave$mean,
+                         prof.POH006.sd$sd)
+colnames(prof.POH006.ave) <- c("congener", "mean", "sd")
+prof.POH006.ave <- data.frame(prof.POH006.ave)
+prof.POH006.ave$mean <- as.numeric(as.character(prof.POH006.ave$mean))
+prof.POH006.ave$sd <- as.numeric(as.character(prof.POH006.ave$sd))
+prof.POH006.ave$congener <- as.character(prof.POH006.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH006.ave$congener <- factor(prof.POH006.ave$congener,
+                                   levels = unique(prof.POH006.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH006.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
+# WCPCB_OR-POH001
+tmp <- rowSums(wc.POH007[, 2:160], na.rm = TRUE)
+prof <- sweep(wc.POH007[, 2:160], 1, tmp, FUN = "/")
+prof.POH007.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.POH007.ave) <- c("mean")
+prof.POH007.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.POH007.sd) <- c("sd")
+congener <- row.names(prof.POH007.ave)
+prof.POH007.ave <- cbind(congener, prof.POH007.ave$mean,
+                         prof.POH007.sd$sd)
+colnames(prof.POH007.ave) <- c("congener", "mean", "sd")
+prof.POH007.ave <- data.frame(prof.POH007.ave)
+prof.POH007.ave$mean <- as.numeric(as.character(prof.POH007.ave$mean))
+prof.POH007.ave$sd <- as.numeric(as.character(prof.POH007.ave$sd))
+prof.POH007.ave$congener <- as.character(prof.POH007.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.POH007.ave$congener <- factor(prof.POH007.ave$congener,
+                                   levels = unique(prof.POH007.ave$congener))
+
+# PCB profile plot
+ggplot(prof.POH007.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.40) +
+  theme_bw() +
+  theme(aspect.ratio = 4/12) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 12),
+        axis.title.y = element_text(face = "bold", size = 13)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.13, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
