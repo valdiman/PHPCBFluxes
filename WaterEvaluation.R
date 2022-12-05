@@ -1,6 +1,6 @@
 # Evaluate Portland water PCB data
 
-# Packages and libraries needed -------------------------------------------------------------------
+# Packages and libraries needed --------------------------------------------
 # Install packages
 install.packages("ggplot2")
 install.packages("ggmap")
@@ -16,15 +16,7 @@ library(zoo) # yields seasons
 # Read data ---------------------------------------------------------------
 # Read water concentrations
 wc.raw <- read.csv("WaterConcentrationV02.csv")
-
-# Maps --------------------------------------------------------------------
-# Map with ggmap
-# Create a square map around samples
-PO.box <- make_bbox(lon = wc.raw$Longitude, lat = wc.raw$Latitude,
-                    f = 0.8)
-PO.map <- get_stamenmap(bbox = PO.box, zoom = 10)
-# Plot map with sites
-# Prepare data
+# tPCB --------------------------------------------------------------------
 # Get tPCB and coordinates
 tPCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
                             wc.raw$Latitude, wc.raw$Longitude,
@@ -47,7 +39,36 @@ tPCB.sd <- aggregate(tPCB ~ Site + Latitude + Longitude,
 tPCB.mean$sd <- tPCB.sd$tPCB
 # Name the columns
 colnames(tPCB.mean) <- c("Site", "Latitude", "Longitude", "tPCB.ave",
-                       'tPCB.sd')
+                         'tPCB.sd')
+
+# Individual PCBs ---------------------------------------------------------
+# PCBs 4, 11, 44+47+65, 45+51, 52 & 68
+PCBi.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
+                            wc.raw$Latitude, wc.raw$Longitude, wc.raw$PCB4,
+                            wc.raw$PCB11, wc.raw$PCB44.47.65, wc.raw$PCB45.51,
+                            wc.raw$PCB52, wc.raw$PCB68))
+# Name the columns
+colnames(PCBi.PO) <- c("Site", "SampleDate", "Latitude", "Longitude",
+                       "PCB4", "PCB11", "PCB44+47+65", "PCB45+51",
+                       "PCB52", "PCB68")
+# Change no numeric to numeric
+PCBi.PO$Latitude <- as.numeric(PCBi.PO$Latitude)
+PCBi.PO$Longitude <- as.numeric(PCBi.PO$Longitude)
+PCBi.PO$PCB4 <- as.numeric(PCBi.PO$PCB4)
+PCBi.PO$PCB11 <- as.numeric(PCBi.PO$PCB11)
+PCBi.PO$`PCB44+47+65` <- as.numeric(PCBi.PO$`PCB44+47+65`)
+PCBi.PO$`PCB45+51` <- as.numeric(PCBi.PO$`PCB45+51`)
+PCBi.PO$PCB52 <- as.numeric(PCBi.PO$PCB52)
+PCBi.PO$PCB68 <- as.numeric(PCBi.PO$PCB68)
+# Change date format
+PCBi.PO$SampleDate <- as.Date(PCBi.PO$SampleDate, format = "%m/%d/%y")
+
+# Maps --------------------------------------------------------------------
+# Map with ggmap
+# Create a square map around samples
+PO.box <- make_bbox(lon = wc.raw$Longitude, lat = wc.raw$Latitude,
+                    f = 0.8)
+PO.map <- get_stamenmap(bbox = PO.box, zoom = 10)
 
 # (1) Plot map + locations
 ggmap(PO.map) +
@@ -70,38 +91,206 @@ ggmap(PO.map) +
   ylab("Latitude")
 
 # Spatial plot ------------------------------------------------------------
-# Bar plot of tPCB
-ggplot(tPCB.mean, aes(y = tPCB.ave, x = Site)) + 
-  geom_bar(stat = 'identity', width = 0.8, fill = "black") +
-  geom_errorbar(aes(ymin=0, ymax = tPCB.ave + tPCB.sd), width=.2,
-                position=position_dodge(.9)) +
+ggplot(tPCB.PO, aes(x = factor(Site), y = tPCB)) + 
+  geom_point() +
   theme_bw() +
-  theme(aspect.ratio = 5/10) +
-  ylab(expression(Sigma*"PCB (pg/L)")) +
   xlab(expression("")) +
-  theme(axis.text.y = element_text(face = "bold", size = 7),
-        axis.title.y = element_text(face = "bold", size = 7)) +
-  theme(axis.text.x = element_text(face = "bold", size = 7,
-                                   angle = 60, hjust = 1),
-        axis.title.x = element_text(face = "bold", size = 7))
-
-# Temporal plots ----------------------------------------------------------
-ggplot(tPCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
-  xlab("") +
-  theme_bw() +
-  theme(aspect.ratio = 5/15) +
-  ylab(expression(bold("Water Concentration " *Sigma*"PCB 2018 - 2019 (pg/L)"))) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold(Sigma*"PCB 1990 - 2020 (pg/L)"))) +
   theme(axis.text.y = element_text(face = "bold", size = 9),
         axis.title.y = element_text(face = "bold", size = 9)) +
   theme(axis.text.x = element_text(face = "bold", size = 8,
                                    angle = 60, hjust = 1),
         axis.title.x = element_text(face = "bold", size = 8)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
-        axis.ticks.length = unit(0.2, "cm")) +
-  geom_jitter(position = position_jitter(0.3), cex = 1.2,
-              shape = 1, col = "#66ccff") +
-  geom_boxplot(width = 0.7, outlier.shape = NA, alpha = 0) 
-  
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Temporal plots ----------------------------------------------------------
+ggplot(tPCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold(Sigma*"PCB 2018 - 2019 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Individual PCBs ---------------------------------------------------------
+# Spatial plots
+ggplot(PCBi.PO, aes(x = factor(Site), y = PCB4)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCB 4 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = factor(Site), y = PCB11)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCB 11 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB44+47+65`)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCBs 44+47+65 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB45+51`)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCBs 45+51 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = factor(Site), y = PCB52)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCB 52 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = factor(Site), y = PCB68)) + 
+  geom_point() +
+  theme_bw() +
+  xlab(expression("")) +
+  theme(aspect.ratio = 5/20) +
+  ylab(expression(bold("PCB 68 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Temporal plots
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB4)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCB 4 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB11)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCB 11 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB44+47+65`)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCBs PCB 44+47+65 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB45+51`)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCBs 45+51 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB52)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCB 52 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
+ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB68)) +
+  geom_point() +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("PCB 68 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm"))
+
 # PCB profiles plot -------------------------------------------------------
 # Create average PCB congener profiles
 # (1) All samples
