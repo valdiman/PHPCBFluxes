@@ -16,67 +16,48 @@ library(zoo) # yields seasons
 # Read data ---------------------------------------------------------------
 # Read water concentrations
 wc.raw <- read.csv("WaterConcentrationV02.csv")
-# tPCB --------------------------------------------------------------------
-# Get tPCB and coordinates
-tPCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
-                            wc.raw$Latitude, wc.raw$Longitude,
-                            rowSums(wc.raw[, c(8:166)],
-                                    na.rm = TRUE)))
-# Name the columns
-colnames(tPCB.PO) <- c("Site", "SampleDate", "Latitude", "Longitude",
-                       "tPCB")
-# Change no numeric to numeric
-tPCB.PO$Latitude <- as.numeric(tPCB.PO$Latitude)
-tPCB.PO$Longitude <- as.numeric(tPCB.PO$Longitude)
-tPCB.PO$tPCB <- as.numeric(tPCB.PO$tPCB)
-# Change date format
-tPCB.PO$SampleDate <- as.Date(tPCB.PO$SampleDate, format = "%m/%d/%y")
-# Average tPCB per site
-tPCB.mean <- aggregate(tPCB ~ Site + Latitude + Longitude,
-                       data = tPCB.PO, FUN = mean)
-tPCB.sd <- aggregate(tPCB ~ Site + Latitude + Longitude,
-                     data = tPCB.PO, FUN = sd)
-tPCB.mean$sd <- tPCB.sd$tPCB
-# Name the columns
-colnames(tPCB.mean) <- c("Site", "Latitude", "Longitude", "tPCB.ave",
-                         'tPCB.sd')
 
-# Individual PCBs ---------------------------------------------------------
-# PCBs 4, 11, 44+47+65, 45+51, 52 & 68
-PCBi.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
-                            wc.raw$Latitude, wc.raw$Longitude, wc.raw$PCB4,
-                            wc.raw$PCB11, wc.raw$PCB44.47.65, wc.raw$PCB45.51,
-                            wc.raw$PCB52, wc.raw$PCB68))
+# Create new data frame with locations, sampling date, lat, long and PCBs
+PCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
+                           wc.raw$Latitude, wc.raw$Longitude,
+                           wc.raw$PCB4, wc.raw$PCB11, wc.raw$PCB44.47.65,
+                           wc.raw$PCB45.51, wc.raw$PCB52, wc.raw$PCB68,
+                           rowSums(wc.raw[, c(8:166)], na.rm = TRUE)))
 # Name the columns
-colnames(PCBi.PO) <- c("Site", "SampleDate", "Latitude", "Longitude",
-                       "PCB4", "PCB11", "PCB44+47+65", "PCB45+51",
-                       "PCB52", "PCB68")
+colnames(PCB.PO) <- c("Site", "SampleDate", "Latitude", "Longitude",
+                      "PCB4", "PCB11", "PCB44+47+65", "PCB45+51",
+                      "PCB52", "PCB68","tPCB")
 # Change no numeric to numeric
-PCBi.PO$Latitude <- as.numeric(PCBi.PO$Latitude)
-PCBi.PO$Longitude <- as.numeric(PCBi.PO$Longitude)
-PCBi.PO$PCB4 <- as.numeric(PCBi.PO$PCB4)
-PCBi.PO$PCB11 <- as.numeric(PCBi.PO$PCB11)
-PCBi.PO$`PCB44+47+65` <- as.numeric(PCBi.PO$`PCB44+47+65`)
-PCBi.PO$`PCB45+51` <- as.numeric(PCBi.PO$`PCB45+51`)
-PCBi.PO$PCB52 <- as.numeric(PCBi.PO$PCB52)
-PCBi.PO$PCB68 <- as.numeric(PCBi.PO$PCB68)
+PCB.PO$Latitude <- as.numeric(PCB.PO$Latitude)
+PCB.PO$Longitude <- as.numeric(PCB.PO$Longitude)
+PCB.PO$PCB4 <- as.numeric(PCB.PO$PCB4)
+PCB.PO$PCB11 <- as.numeric(PCB.PO$PCB11)
+PCB.PO$`PCB44+47+65` <- as.numeric(PCB.PO$`PCB44+47+65`)
+PCB.PO$`PCB45+51` <- as.numeric(PCB.PO$`PCB45+51`)
+PCB.PO$PCB52 <- as.numeric(PCB.PO$PCB52)
+PCB.PO$PCB68 <- as.numeric(PCB.PO$PCB68)
+PCB.PO$tPCB <- as.numeric(PCB.PO$tPCB)
 # Change date format
-PCBi.PO$SampleDate <- as.Date(PCBi.PO$SampleDate, format = "%m/%d/%y")
+PCB.PO$SampleDate <- as.Date(PCB.PO$SampleDate, format = "%m/%d/%y")
 
 # Maps --------------------------------------------------------------------
 # Map with ggmap
 # Create a square map around samples
-PO.box <- make_bbox(lon = wc.raw$Longitude, lat = wc.raw$Latitude,
+PO.box <- make_bbox(lon = PCB.PO$Longitude, lat = PCB.PO$Latitude,
                     f = 0.8)
 PO.map <- get_stamenmap(bbox = PO.box, zoom = 10)
-
+# Average tPCB per site
+tPCB.mean <- aggregate(tPCB ~ Site + Latitude + Longitude,
+                       data = PCB.PO, FUN = mean)
+# Name the columns
+colnames(tPCB.mean) <- c("Site", "Latitude", "Longitude", "tPCB.ave")
 # (1) Plot map + locations
 ggmap(PO.map) +
   geom_point(data = tPCB.mean, aes(x = Longitude, y = Latitude),
              shape = 21, color = "red",
              fill = "white", size = 1.75, stroke = 0.75) +
   geom_label_repel(aes(x = Longitude, y = Latitude, label = Site),
-                   data = tPCB.mean, family = 'Times', size = 4, 
+                   data = tPCB.mean, family = 'Times', size = 1, 
                    box.padding = 0.2, point.padding = 0.3,
                    segment.color = 'grey50')
 
@@ -91,7 +72,7 @@ ggmap(PO.map) +
   ylab("Latitude")
 
 # Spatial plot ------------------------------------------------------------
-ggplot(tPCB.PO, aes(x = factor(Site), y = tPCB)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = tPCB)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -106,7 +87,7 @@ ggplot(tPCB.PO, aes(x = factor(Site), y = tPCB)) +
         axis.ticks.length = unit(0.2, "cm"))
 
 # Temporal plots ----------------------------------------------------------
-ggplot(tPCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -122,7 +103,7 @@ ggplot(tPCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
 
 # Individual PCBs ---------------------------------------------------------
 # Spatial plots
-ggplot(PCBi.PO, aes(x = factor(Site), y = PCB4)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = PCB4)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -136,7 +117,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = PCB4)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = factor(Site), y = PCB11)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = PCB11)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -150,7 +131,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = PCB11)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB44+47+65`)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = `PCB44+47+65`)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -164,7 +145,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB44+47+65`)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB45+51`)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = `PCB45+51`)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -178,7 +159,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = `PCB45+51`)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = factor(Site), y = PCB52)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = PCB52)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -192,7 +173,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = PCB52)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = factor(Site), y = PCB68)) + 
+ggplot(PCB.PO, aes(x = factor(Site), y = PCB68)) + 
   geom_point() +
   theme_bw() +
   xlab(expression("")) +
@@ -207,7 +188,7 @@ ggplot(PCBi.PO, aes(x = factor(Site), y = PCB68)) +
         axis.ticks.length = unit(0.2, "cm"))
 
 # Temporal plots
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB4)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB4)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -221,7 +202,7 @@ ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB4)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB11)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB11)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -235,7 +216,7 @@ ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB11)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB44+47+65`)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB44+47+65`)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -249,7 +230,7 @@ ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB44+47+65`)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB45+51`)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB45+51`)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -263,7 +244,7 @@ ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = `PCB45+51`)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB52)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB52)) +
   geom_point() +
   xlab("") +
   theme_bw() +
@@ -277,7 +258,7 @@ ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB52)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-ggplot(PCBi.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB68)) +
+ggplot(PCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = PCB68)) +
   geom_point() +
   xlab("") +
   theme_bw() +
