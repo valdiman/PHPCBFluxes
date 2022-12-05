@@ -5,15 +5,17 @@
 install.packages("ggplot2")
 install.packages("ggmap")
 install.packages("ggrepel")
+install.packages("zoo")
 
 # Libraries
 library(ggplot2) # make_bbox
 library(ggmap) # make_bbox
 library(ggrepel) #geom_label_repel
+library(zoo) # yields seasons
 
 # Read data ---------------------------------------------------------------
 # Read water concentrations
-wc.raw <- read.csv("WaterConcentration.csv")
+wc.raw <- read.csv("WaterConcentrationV02.csv")
 
 # Maps --------------------------------------------------------------------
 # Map with ggmap
@@ -24,16 +26,19 @@ PO.map <- get_stamenmap(bbox = PO.box, zoom = 10)
 # Plot map with sites
 # Prepare data
 # Get tPCB and coordinates
-tPCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$Latitude,
-                            wc.raw$Longitude,
+tPCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate,
+                            wc.raw$Latitude, wc.raw$Longitude,
                             rowSums(wc.raw[, c(8:166)],
                                     na.rm = TRUE)))
 # Name the columns
-colnames(tPCB.PO) <- c("Site", "Latitude", "Longitude", "tPCB")
+colnames(tPCB.PO) <- c("Site", "SampleDate", "Latitude", "Longitude",
+                       "tPCB")
 # Change no numeric to numeric
 tPCB.PO$Latitude <- as.numeric(tPCB.PO$Latitude)
 tPCB.PO$Longitude <- as.numeric(tPCB.PO$Longitude)
 tPCB.PO$tPCB <- as.numeric(tPCB.PO$tPCB)
+# Change date format
+tPCB.PO$SampleDate <- as.Date(tPCB.PO$SampleDate, format = "%m/%d/%y")
 # Average tPCB per site
 tPCB.mean <- aggregate(tPCB ~ Site + Latitude + Longitude,
                        data = tPCB.PO, FUN = mean)
@@ -64,6 +69,7 @@ ggmap(PO.map) +
   xlab("Longitude") +
   ylab("Latitude")
 
+# Spatial plot ------------------------------------------------------------
 # Bar plot of tPCB
 ggplot(tPCB.mean, aes(y = tPCB.ave, x = Site)) + 
   geom_bar(stat = 'identity', width = 0.8, fill = "black") +
@@ -79,6 +85,23 @@ ggplot(tPCB.mean, aes(y = tPCB.ave, x = Site)) +
                                    angle = 60, hjust = 1),
         axis.title.x = element_text(face = "bold", size = 7))
 
+# Temporal plots ----------------------------------------------------------
+ggplot(tPCB.PO, aes(x = format(SampleDate,'%Y%m%d'), y = tPCB)) +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/15) +
+  ylab(expression(bold("Water Concentration " *Sigma*"PCB 2018 - 2019 (pg/L)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 9),
+        axis.title.y = element_text(face = "bold", size = 9)) +
+  theme(axis.text.x = element_text(face = "bold", size = 8,
+                                   angle = 60, hjust = 1),
+        axis.title.x = element_text(face = "bold", size = 8)) +
+  theme(axis.ticks = element_line(size = 0.8, color = "black"), 
+        axis.ticks.length = unit(0.2, "cm")) +
+  geom_jitter(position = position_jitter(0.3), cex = 1.2,
+              shape = 1, col = "#66ccff") +
+  geom_boxplot(width = 0.7, outlier.shape = NA, alpha = 0) 
+  
 # PCB profiles plot -------------------------------------------------------
 # Create average PCB congener profiles
 # (1) All samples
@@ -107,7 +130,7 @@ ggplot(prof.ave, aes(x = congener, y = mean)) +
   geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
                 position = position_dodge(0.9)) +
   xlab("") +
-  ylim(0, 0.35) +
+  ylim(0, 0.5) +
   theme_bw() +
   theme(aspect.ratio = 4/12) +
   ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
@@ -122,10 +145,12 @@ ggplot(prof.ave, aes(x = congener, y = mean)) +
            fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+  annotate("text", x = 41.3, y = 0.35, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.45, label = "All samples (n = 21)",
+           size = 3.5, fontface = 1)
 
 # (2) Specific site
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
@@ -166,7 +191,7 @@ ggplot(prof.POH001.ave, aes(x = congener, y = mean)) +
   geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
                 position = position_dodge(0.9)) +
   xlab("") +
-  ylim(0, 0.40) +
+  ylim(0, 0.60) +
   theme_bw() +
   theme(aspect.ratio = 4/12) +
   ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
@@ -181,10 +206,12 @@ ggplot(prof.POH001.ave, aes(x = congener, y = mean)) +
            fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+  annotate("text", x = 41.3, y = 0.4, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.55, label = "WCPCB_OR-POH001",
+           size = 3.5, fontface = 1)
 
 # WCPCB_OR-POH002
 tmp <- rowSums(wc.POH002[, 2:160], na.rm = TRUE)
@@ -230,7 +257,9 @@ ggplot(prof.POH002.ave, aes(x = congener, y = mean)) +
   annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.35, label = "WCPCB_OR-POH002",
+           size = 3.5, fontface = 1)
 
 # WCPCB_OR-POH003
 tmp <- rowSums(wc.POH003[, 2:160], na.rm = TRUE)
@@ -276,7 +305,9 @@ ggplot(prof.POH003.ave, aes(x = congener, y = mean)) +
   annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.35, label = "WCPCB_OR-POH003",
+           size = 3.5, fontface = 1)
 
 # WCPCB_OR-POH004
 tmp <- rowSums(wc.POH004[, 2:160], na.rm = TRUE)
@@ -304,7 +335,7 @@ ggplot(prof.POH004.ave, aes(x = congener, y = mean)) +
   geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
                 position = position_dodge(0.9)) +
   xlab("") +
-  ylim(0, 0.40) +
+  ylim(0, 0.50) +
   theme_bw() +
   theme(aspect.ratio = 4/12) +
   ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
@@ -319,10 +350,12 @@ ggplot(prof.POH004.ave, aes(x = congener, y = mean)) +
            fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+  annotate("text", x = 41.3, y = 0.30, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.45, label = "WCPCB_OR-POH004",
+           size = 3.5, fontface = 1)
 
 # WCPCB_OR-POH005
 tmp <- rowSums(wc.POH005[, 2:160], na.rm = TRUE)
@@ -359,16 +392,18 @@ ggplot(prof.POH005.ave, aes(x = congener, y = mean)) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) +
-  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+  annotate("text", x = 4, y = 0.18, label = "PCB 4", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+  annotate("text", x = 11, y = 0.15, label = "PCB 11", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
+  annotate("text", x = 36.2, y = 0.23, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+  annotate("text", x = 57, y = 0.18, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.35, label = "WCPCB_OR-POH005",
+           size = 3.5, fontface = 1)
 
 # WCPCB_OR-POH006
 tmp <- rowSums(wc.POH006[, 2:160], na.rm = TRUE)
@@ -396,7 +431,7 @@ ggplot(prof.POH006.ave, aes(x = congener, y = mean)) +
   geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
                 position = position_dodge(0.9)) +
   xlab("") +
-  ylim(0, 0.40) +
+  ylim(0, 0.5) +
   theme_bw() +
   theme(aspect.ratio = 4/12) +
   ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
@@ -407,16 +442,18 @@ ggplot(prof.POH006.ave, aes(x = congener, y = mean)) +
         axis.ticks.x=element_blank()) +
   annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+  annotate("text", x = 11, y = 0.2, label = "PCB 11", size = 3,
            fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+  annotate("text", x = 41.3, y = 0.35, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+  annotate("text", x = 57, y = 0.17, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.45, label = "WCPCB_OR-POH006",
+           size = 3.5, fontface = 1)
 
-# WCPCB_OR-POH001
+# WCPCB_OR-POH007
 tmp <- rowSums(wc.POH007[, 2:160], na.rm = TRUE)
 prof <- sweep(wc.POH007[, 2:160], 1, tmp, FUN = "/")
 prof.POH007.ave <- data.frame(colMeans(prof, na.rm = TRUE))
@@ -442,7 +479,7 @@ ggplot(prof.POH007.ave, aes(x = congener, y = mean)) +
   geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
                 position = position_dodge(0.9)) +
   xlab("") +
-  ylim(0, 0.40) +
+  ylim(0, 0.50) +
   theme_bw() +
   theme(aspect.ratio = 4/12) +
   ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
@@ -451,13 +488,15 @@ ggplot(prof.POH007.ave, aes(x = congener, y = mean)) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) +
-  annotate("text", x = 4, y = 0.09, label = "PCB 4", size = 3,
+  annotate("text", x = 4, y = 0.12, label = "PCB 4", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
+  annotate("text", x = 11, y = 0.19, label = "PCB 11", size = 3,
            fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.2, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.25, label = "PCBs 45+51",
+  annotate("text", x = 41.3, y = 0.35, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 57, y = 0.13, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+  annotate("text", x = 57, y = 0.2, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 130, y = 0.45, label = "WCPCB_OR-POH007",
+           size = 3.5, fontface = 1)
