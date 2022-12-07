@@ -637,7 +637,6 @@ ggplot(PCB.PO, aes(x = Site, y = PCB68/tPCB, shape = SampleDate2)) +
   theme(axis.ticks = element_line(size = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 
-
 # Temporal plots ----------------------------------------------------------
 # Concentration
 # PCB4
