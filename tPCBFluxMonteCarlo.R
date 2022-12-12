@@ -70,7 +70,7 @@ cp[,3] <- c(1,	0,	0,	2,	1,	1,	1,	1,	1,	2,	0,
 	    2,	1,	0,	2,	3,	2,	3,	3,	4,	3,	3,
 	    4,	2,	3,	3,	3,	4,	4,	3,	4,	1,	2,
 	    2,	2,	1,	3,	3,	4,	3,	4,	4,	3,	4,
-	    2,	3,	4,	4,	4,)
+	    2,	3,	4,	4,	4)
 
 # Add log10 Ho of individual PCB congeners
 cp[,4] <- c(-3.526,	-3.544,	-3.562,	-3.483,	-3.622,	-3.486,	-3.424,	-3.518,	-3.49,
@@ -90,7 +90,7 @@ cp[,4] <- c(-3.526,	-3.544,	-3.562,	-3.483,	-3.622,	-3.486,	-3.424,	-3.518,	-3.4
 	    -3.763,	-3.924,	-3.772,	-3.651,	-3.527,	-3.787,	-3.671,	-3.56,	-3.969,
 	    -3.638,	-3.59,	-3.696,	-3.339,	-3.434,	-3.693,	-3.353,	-3.177,	-3.95,
 	    -3.876,	-3.718,	-4.174,	-3.926,	-3.884,	-3.619,	-3.644,	-3.884,	-3.651,
-	    -3.853,	-3.463,	-4.059,	-4.059,	-3.772,	-3.777,	-3.948,)
+	    -3.853,	-3.463,	-4.059,	-4.059,	-3.772,	-3.777,	-3.948)
 
 # Add Ho error
 cp[,5] <- c(0.662)
@@ -113,19 +113,18 @@ cp[,6] <- c(4.46,	4.69,	4.69,	4.65,	4.97,	5.06,	5.07,	5.07,	5.06,
 	    7.33,	7.11,	7.17,	6.76,	7.08,	7.14,	6.73,	7.36,	7.11,
 	    7.2,	7.2,	6.85,	6.69,	7.17,	6.82,	7.71,	7.46,	7.55,
 	    7.52,	7.8,	7.56,	7.65,	7.27,	7.2,	7.62,	7.24,	7.65,
-	    7.3,	8,	8.09,	7.74,	7.71,	8.18,)
+	    7.3,	8,	8.09,	7.74,	7.71,	8.18)
 
 # Add Kow error
 cp[,7] <- c(0.32)
 
-# Read chemical properties
-cp <- read.csv("ChemicalProperties.csv")
+# Update names
 Congener <- cp$Congener
 MW.PCB <- cp$MW.PCB
 nOrtho.Cl <- cp$nOrtho.Cl
-H0.mean <- cp$H0
+H0.mean <- cp$H0.mean
 H0.error <- cp$H0.error
-Kow.mean <- cp$Kow
+Kow.mean <- cp$Kow.mean
 Kow.error <- cp$Kow.error
 
 # Water concentrations ----------------------------------------------------
@@ -138,13 +137,13 @@ wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
 wc.2 <- cbind(wc.raw$LocationID, wc.1)
 colnames(wc.2)[1] <- "LocationID"
 # (1) All samples
-# (1) Mean and standard deviation
+# (i) Mean and standard deviation
 wc.ave <- sapply(wc.1, mean, na.rm = TRUE)
 wc.sd <- sapply(wc.1, sd, na.rm = TRUE)
 wc.3 <- data.frame(t(rbind(wc.ave, wc.sd)))
 C.PCB.water.mean <- wc.3$wc.ave
 C.PCB.water.sd <- wc.3$wc.sd
-# (II) Geometric mean and geometric standard deviation
+# (ii) Geometric mean and geometric standard deviation
 # Log 10 individual PCBs
 wc.log <- log10(wc.1)
 wc.gm <- exp(sapply(wc.log, mean, na.rm = TRUE))
@@ -152,7 +151,7 @@ wc.gsd <- exp(sapply(wc.log, sd, na.rm = TRUE))
 wc.4 <- data.frame(t(rbind(wc.gm, wc.gsd)))
 C.PCB.water.gm <- wc.4$wc.gm
 C.PCB.water.gsd <- wc.4$wc.gsd
-# (2) Especific site
+# (2) Specific site
 # Selected site
 wc.POH001 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH001', ]
 wc.POH002 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH002', ]
@@ -205,6 +204,13 @@ wc.POH007.2 <- data.frame(t(rbind(wc.POH007.ave, wc.POH007.sd)))
 C.PCB.water.POH007.mean <- wc.POH007.2$wc.POH007.ave
 C.PCB.water.POH007.sd <- wc.POH007.2$wc.POH007.sd
 
+# (3) Average of the three highest samples
+# WCPCB_OR-POH003 8/22/18, WCPCB_OR-POH004 8/21/18 &
+# WCPCB_OR-POH005 8/23/18
+wc.hi <- wc.2[c(7, 10, 13), 2:160]
+C.PCB.water.hi.ave <- sapply(wc.hi, mean)
+C.PCB.water.hi.sd <- sapply(wc.hi, sd)
+
 # Meteorological data -----------------------------------------------------
 
 # Read meteorological conditions
@@ -256,7 +262,7 @@ H0 <- rnorm(1, H0.mean, H0.error) # [Pa m3/mol]
 Kow <- rnorm(1, Kow.mean, Kow.error) # [Lwater/Loctanol] 
 # PCB water concentration
 # Concentrations can be changed
-C.PCB.water <- abs(rnorm(1, C.PCB.water.gm, C.PCB.water.gsd)) # [pg/L]
+C.PCB.water <- abs(rnorm(1, C.PCB.water.hi.ave, C.PCB.water.hi.sd)) # [pg/L]
 # DOC (Spencer et al 2012)
 DOC <- abs(rnorm(1, 2, 0.3)) # [mg/L]
 # Water temperature
