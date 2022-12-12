@@ -9,7 +9,7 @@
 # Chemical properties -----------------------------------------------------
 
 # Create matrix to storage CP data
-cp <- data.frame(matrix(NA, nrow = 160, ncol = 7))
+cp <- data.frame(matrix(NA, nrow = 159, ncol = 7))
 
 # Add column names
 colnames(cp) <- c('Congener', 'MW.PCB', 'nOrtho.Cl', 'H0.mean', 'H0.error',
@@ -44,19 +44,28 @@ cp[,1] <- as.factor(c("PCB1", "PCB2", "PCB3", "PCB4", "PCB5", "PCB6", "PCB7", "P
 		      "PCB205", "PCB206", "PCB207", "PCB208", "PCB209"))
 
 # Add molecular weight
-cp[2:4,2] <- c(188.644)
-cp[5:15,2] <- c(223.088)
-cp[16:35,2] <- c(257.532)
-cp[36:65,2] <- c(291.976)
-cp[66:94,2] <- c(326.42)
-cp[95:125,2] <- c(360.864)
-cp[126:146,2] <- c(395.308)
-cp[147:156,2] <- c(429.752)
-cp[157:159,2] <- c(465.740544)
-cp[160,2] <- c(498.64)
+cp[1:3,2] <- c(188.644)
+cp[4:14,2] <- c(223.088)
+cp[15:34,2] <- c(257.532)
+cp[35:64,2] <- c(291.976)
+cp[65:93,2] <- c(326.42)
+cp[94:124,2] <- c(360.864)
+cp[125:145,2] <- c(395.308)
+cp[146:155,2] <- c(429.752)
+cp[156:158,2] <- c(465.740544)
+cp[159,2] <- c(498.64)
 
 # Add ortho Cl of individual PCB congeners
-cp[,3] <- c()
+cp[1:3,3] <- c(188.644)
+cp[4:14,3] <- c(223.088)
+cp[15:34,3] <- c(257.532)
+cp[35:64,3] <- c(291.976)
+cp[65:93,3] <- c(326.42)
+cp[94:124,3] <- c(360.864)
+cp[125:145,3] <- c(395.308)
+cp[146:155,3] <- c(429.752)
+cp[156:158,3] <- c(465.740544)
+cp[159,3] <- c(498.64)
 
 # Add log10 Ho of individual PCB congeners
 cp[,4] <- c()
@@ -83,7 +92,7 @@ Kow.error <- cp$Kow.error
 # Water concentrations ----------------------------------------------------
 
 # Read water concentrations
-wc.raw <- read.csv("WaterConcentration.csv")
+wc.raw <- read.csv("WaterConcentrationV02.csv")
 # Different approaches to use the data
 # Prepare data [pg/L] = [ng/m3]
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
