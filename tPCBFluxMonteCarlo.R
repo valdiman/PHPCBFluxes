@@ -211,6 +211,10 @@ wc.hi <- wc.2[c(7, 10, 13), 2:160]
 C.PCB.water.hi.ave <- sapply(wc.hi, mean)
 C.PCB.water.hi.sd <- sapply(wc.hi, sd)
 
+# Select water concentration to be used
+C.PCB.water.ave <- C.PCB.water.hi.ave
+C.PCB.water.error <- C.PCB.water.hi.sd
+
 # Meteorological data -----------------------------------------------------
 
 # Read meteorological conditions
@@ -236,7 +240,7 @@ P.error <- meteor[4, m +1]
 
 # Flux function
 final.result = function(MW.PCB, H0.mean, H0.error, 
-         C.PCB.water.mean, C.PCB.water.error, nOrtho.Cl,
+         C.PCB.water.ave, C.PCB.water.error, nOrtho.Cl,
          Kow.mean, Kow.error) {
 # fixed parameters
 
@@ -245,7 +249,7 @@ T <- 298.15 # [K]
 
 F.PCB.aw <- NULL
 # number of replicates for Monte Carlo simulation
-for (replication in 1:100) {
+for (replication in 1:1000) {
 
 # Random parameters
 # Parameters for calculating Delta Uaw
@@ -262,7 +266,7 @@ H0 <- rnorm(1, H0.mean, H0.error) # [Pa m3/mol]
 Kow <- rnorm(1, Kow.mean, Kow.error) # [Lwater/Loctanol] 
 # PCB water concentration
 # Concentrations can be changed
-C.PCB.water <- abs(rnorm(1, C.PCB.water.hi.ave, C.PCB.water.hi.sd)) # [pg/L]
+C.PCB.water <- abs(rnorm(1, C.PCB.water.ave, C.PCB.water.error)) # [pg/L]
 # DOC (Spencer et al 2012)
 DOC <- abs(rnorm(1, 2, 0.3)) # [mg/L]
 # Water temperature
@@ -355,7 +359,7 @@ Num.Congener <- length(Congener)
 result <- NULL
 for (i in 1:Num.Congener) {
 	result <- rbind(result, final.result(MW.PCB[i], H0.mean[i], H0.error[i], 
-         C.PCB.water.mean[i], C.PCB.water.error[i], nOrtho.Cl[i],
+         C.PCB.water.ave[i], C.PCB.water.error[i], nOrtho.Cl[i],
          Kow.mean[i], Kow.error[i]))
 }
 
