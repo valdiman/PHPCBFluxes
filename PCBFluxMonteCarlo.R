@@ -373,4 +373,14 @@ names(final.result) = c("Congener", "Mean (ng/m2/d)",
                         "Std (ng/m2/d)", "2.5%CL (ng/m2/d)",
                         "97.5%CL (ng/m2/d)")
 
-write.csv(final.result, 'test.csv')
+# Individual congeners
+# PCB4
+print(final.result[4,])
+# PCB11
+print(final.result[11,])
+# PCB44+47+65
+print(final.result[38,])
+# PCB45+51
+print(final.result[39,])
+# PCB68
+print(final.result[57,])
