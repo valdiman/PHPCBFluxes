@@ -375,6 +375,8 @@ tPCBFlux <- c(mmm, sss, q2.5, q97.5)
 names(tPCBFlux) <- c("Mean (ng/m2/d)", "Std (ng/m2/d)",
                      "2.5%CL (ng/m2/d)", "97.5%CL (ng/m2/d)")
 
+print(tPCBFlux)
+
 # Plots -------------------------------------------------------------------
 
 # Histogram
