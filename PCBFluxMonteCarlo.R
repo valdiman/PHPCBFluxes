@@ -220,8 +220,6 @@ C.PCB.water.ave <- C.PCB.water.hi.ave
 C.PCB.water.error <- C.PCB.water.hi.sd
 
 # Meteorological data -----------------------------------------------------
-
-# Meteorological data
 # 2018-08
 tair.mean <- 21.3 # C, data from NOAA
 tair.error <- 5.27 # C, data from NOAA
@@ -229,7 +227,7 @@ twater.mean <- 23.24 # C, data from USGS
 twater.error <- 1.29 # C, data from USGS
 u.mean <- 2.35 # m/s, data from NOAA
 u.error <- 1.58 # m/s, data from NOAA
-# Transfor u @6.7 m to @10 m
+# Modify u @6.7 m to @10 m
 u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
 u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
 P.mean <- 1016 # mbar, data from NOAA
