@@ -2,7 +2,13 @@
 # using 2018 and 2019 water samples
 # Air data are not used in these calculations
 # Monte Carlo simulation is included
-# No needs of R packages
+
+# Packages and libraries needed -------------------------------------------
+# Install package
+install.packages("ggplot2")
+
+# Load libraries
+library(ggplot2)
 
 # Chemical properties -----------------------------------------------------
 
@@ -215,24 +221,19 @@ C.PCB.water.error <- C.PCB.water.hi.sd
 
 # Meteorological data -----------------------------------------------------
 
-# Read meteorological conditions
-meteor <- read.csv("Meteorological.csv")
-# Columns are the different water sampling periods
-# except last columns are the passive sampler deployment
-# Columns 2 to 11 definitions: sampl.aug.2018.av,sampl.aug.2018.sd,
-# sampl.nov.2018.av, sampl.nov.2018.sd, sampl.jan.2019.av,
-# sampl.jan.2019.sd, sampl.feb.2019.av, sampl.feb.2019.sd,
-# sampl.sum.2020.av, sampl.sum.2022.sd
-# m is column number
-m <- 2 # from 2 to 11
-tair.mean <- meteor[1, m]
-tair.error <- meteor[1, m+1]
-twater.mean <- meteor[2, m]
-twater.error <- meteor[2, m+1]
-u10.mean <- meteor[3, m]
-u10.error <- meteor[3, m+1]
-P.mean <- meteor[4, m]
-P.error <- meteor[4, m +1]
+# Meteorological data
+# 2018-08
+tair.mean <- 21.3 # C, data from NOAA
+tair.error <- 5.27 # C, data from NOAA
+twater.mean <- 23.24 # C, data from USGS
+twater.error <- 1.29 # C, data from USGS
+u.mean <- 2.35 # m/s, data from NOAA
+u.error <- 1.58 # m/s, data from NOAA
+# Transfor u @6.7 m to @10 m
+u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
+u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
+P.mean <- 1016 # mbars, data from NOAA
+P.error <- 3.23 # mbars, data from NOAA
 
 # Flux calculations -------------------------------------------------------
 
@@ -373,6 +374,7 @@ names(final.result) = c("Congener", "Mean (ng/m2/d)",
                         "Std (ng/m2/d)", "2.5%CL (ng/m2/d)",
                         "97.5%CL (ng/m2/d)")
 
+# Select individual PCB fluxes --------------------------------------------
 # Select individual congeners
 # PCB4
 print(final.result[4,])
@@ -384,3 +386,41 @@ print(final.result[38,])
 print(final.result[39,])
 # PCB68
 print(final.result[57,])
+
+# Plot fluxes -------------------------------------------------------------
+final.result$Congener <- as.character(final.result$Congener)
+#Then turn it back into a factor with the levels in the correct order
+final.result$Congener <- factor(final.result$Congener,
+                            levels = unique(final.result$Congener))
+
+ggplot(final.result, aes(x = Congener, y = `Mean (ng/m2/d)`)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = `Mean (ng/m2/d)`,
+                    ymax = (`Mean (ng/m2/d)` + `Std (ng/m2/d)`)),
+                width = 0.9, position = position_dodge(0.9)) +
+  xlab("") +
+  theme_bw() +
+  theme(aspect.ratio = 5/25) +
+  ylab(expression(bold("PCBi flux (ng/m"^2*"/d)"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 10),
+        axis.title.y = element_text(face = "bold", size = 10)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 100, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 50, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 18, y = 80, label = "PCB 19",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 37.4, y = 110, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 40, y = 180, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 44, y = 50, label = "PCB 52",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 60, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90)
+
+
