@@ -216,25 +216,18 @@ C.PCB.water.ave <- C.PCB.water.hi.ave
 C.PCB.water.error <- C.PCB.water.hi.sd
 
 # Meteorological data -----------------------------------------------------
-
-# Read meteorological conditions
-meteor <- read.csv("Meteorological.csv")
-# Columns are the different water sampling periods
-# except last columns are the passive sampler deployment
-# Columns 2 to 11 definitions: sampl.aug.2018.av,sampl.aug.2018.sd,
-# sampl.nov.2018.av, sampl.nov.2018.sd, sampl.jan.2019.av,
-# sampl.jan.2019.sd, sampl.feb.2019.av, sampl.feb.2019.sd,
-# sampl.sum.2020.av, sampl.sum.2022.sd
-# m is column number
-m <- 2 # from 2 to 11
-tair.mean <- meteor[1, m]
-tair.error <- meteor[1, m+1]
-twater.mean <- meteor[2, m]
-twater.error <- meteor[2, m+1]
-u10.mean <- meteor[3, m]
-u10.error <- meteor[3, m+1]
-P.mean <- meteor[4, m]
-P.error <- meteor[4, m +1]
+# 2018-08
+tair.mean <- 21.3 # C, data from NOAA
+tair.error <- 5.27 # C, data from NOAA
+twater.mean <- 23.24 # C, data from USGS
+twater.error <- 1.29 # C, data from USGS
+u.mean <- 2.35 # m/s, data from NOAA
+u.error <- 1.58 # m/s, data from NOAA
+# Modify u @6.7 m to @10 m
+u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
+u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
+P.mean <- 1016 # mbar, data from NOAA
+P.error <- 3.23 # mbar, data from NOAA
 
 # Flux calculations -------------------------------------------------------
 
