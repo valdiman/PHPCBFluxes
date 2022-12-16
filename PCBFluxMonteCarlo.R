@@ -232,8 +232,8 @@ u.error <- 1.58 # m/s, data from NOAA
 # Transfor u @6.7 m to @10 m
 u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
 u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
-P.mean <- 1016 # mbars, data from NOAA
-P.error <- 3.23 # mbars, data from NOAA
+P.mean <- 1016 # mbar, data from NOAA
+P.error <- 3.23 # mbar, data from NOAA
 
 # Flux calculations -------------------------------------------------------
 
@@ -388,6 +388,7 @@ print(final.result[39,])
 print(final.result[57,])
 
 # Plot fluxes -------------------------------------------------------------
+# Organize x-axis
 final.result$Congener <- as.character(final.result$Congener)
 #Then turn it back into a factor with the levels in the correct order
 final.result$Congener <- factor(final.result$Congener,
