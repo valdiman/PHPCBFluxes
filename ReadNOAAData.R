@@ -1,15 +1,20 @@
 # Code to read NOAA meteorological data
+# https://docs.ropensci.org/rnoaa/articles/rnoaa.html
+# Documentation:
+# https://www.ncei.noaa.gov/data/global-hourly/doc/isd-format-document.pdf
 
 # Packages and libraries needed --------------------------------------------
 # Install packages
 install.packages("rnoaa")
 install.packages("leaflet")
 install.packages("dplyr")
+install.packages("stringr")
 
 # Libraries
 library(rnoaa)
-library(leaflet)
+library(leaflet) # to plot ISD stations
 library(dplyr)
+library(stringr) # function str_detect
 
 # Read data ---------------------------------------------------------------
 # Read all station
@@ -59,7 +64,7 @@ summary(met201808.ws)
 sd(met201808.ws)
 
 # (iii) Atmospheric pressure
-# In mbars, but needs to be divided by 10, e.g., 10001 -> 1000.1
+# In hPa (= mbar), but needs to be divided by 10, e.g., 10001 -> 1000.1
 # Transform character to number and divide by 10
 met201808.pr <- as.numeric(met201808$air_pressure)/10
 # Remove 999 values
