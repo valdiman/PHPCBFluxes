@@ -220,6 +220,7 @@ C.PCB.water.ave <- C.PCB.water.hi.ave
 C.PCB.water.error <- C.PCB.water.hi.sd
 
 # Meteorological data -----------------------------------------------------
+# Data obtained from ReadNOAAData.R data and ReadUSGSData.R codes
 # 2018-08
 tair.mean <- 21.3 # C, data from NOAA
 tair.error <- 5.27 # C, data from NOAA
