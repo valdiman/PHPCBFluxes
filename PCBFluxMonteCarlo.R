@@ -392,7 +392,7 @@ final.result$Congener <- as.character(final.result$Congener)
 #Then turn it back into a factor with the levels in the correct order
 final.result$Congener <- factor(final.result$Congener,
                             levels = unique(final.result$Congener))
-
+# (1) Bar plot
 ggplot(final.result, aes(x = Congener, y = `Mean (ng/m2/d)`)) +
   geom_bar(position = position_dodge(), stat = "identity",
            fill = "black") +
