@@ -1282,3 +1282,58 @@ ggplot(prof.POH007.ave, aes(x = congener, y = mean)) +
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 150, y = 0.53, label = "POH007",
            size = 3.5, fontface = 1)
+
+# (3) Average of the three highest samples
+# WCPCB_OR-POH003 8/22/18, WCPCB_OR-POH004 8/21/18 &
+# WCPCB_OR-POH005 8/23/18
+wc.hi <- wc.2[c(7, 10, 13), 2:160]
+tmp <- rowSums(wc.hi, na.rm = TRUE)
+prof <- sweep(wc.hi, 1, tmp, FUN = "/")
+prof.wc.hi.ave <- data.frame(colMeans(prof, na.rm = TRUE))
+colnames(prof.wc.hi.ave) <- c("mean")
+prof.wc.hi.sd <- data.frame(apply(prof, 2, sd, na.rm = TRUE))
+colnames(prof.wc.hi.sd) <- c("sd")
+congener <- row.names(prof.wc.hi.ave)
+prof.wc.hi.ave <- cbind(congener, prof.wc.hi.ave$mean,
+                         prof.wc.hi.sd$sd)
+colnames(prof.wc.hi.ave) <- c("congener", "mean", "sd")
+prof.wc.hi.ave <- data.frame(prof.wc.hi.ave)
+prof.wc.hi.ave$mean <- as.numeric(as.character(prof.wc.hi.ave$mean))
+prof.wc.hi.ave$sd <- as.numeric(as.character(prof.wc.hi.ave$sd))
+prof.wc.hi.ave$congener <- as.character(prof.wc.hi.ave$congener)
+#Then turn it back into a factor with the levels in the correct order
+prof.wc.hi.ave$congener <- factor(prof.wc.hi.ave$congener,
+                                   levels = unique(prof.wc.hi.ave$congener))
+
+# PCB profile plot
+ggplot(prof.wc.hi.ave, aes(x = congener, y = mean)) +
+  geom_bar(position = position_dodge(), stat = "identity",
+           fill = "black") +
+  geom_errorbar(aes(ymin = mean, ymax = (mean+sd)), width = 0.9,
+                position = position_dodge(0.9)) +
+  xlab("") +
+  ylim(0, 0.60) +
+  theme_bw() +
+  theme(aspect.ratio = 4/16) +
+  ylab(expression(bold("Mass fraction "*Sigma*"PCB"))) +
+  theme(axis.text.y = element_text(face = "bold", size = 10),
+        axis.title.y = element_text(face = "bold", size = 10)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  annotate("text", x = 4, y = 0.19, label = "PCB 4", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 11, y = 0.15, label = "PCB 11", size = 3,
+           fontface = 1, angle = 90) +
+  annotate("text", x = 19, y = 0.2, label = "PCBs 20+28",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 36.2, y = 0.3, label = "PCBs 44+47+65",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 41.3, y = 0.4, label = "PCBs 45+51",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 44.3, y = 0.13, label = "PCB 52",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 0.15, label = "PCB 68",
+           size = 3, fontface = 1, angle = 90) +
+  annotate("text", x = 140, y = 0.53, label = "3 highest samples",
+           size = 3.5, fontface = 1)
