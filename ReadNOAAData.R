@@ -36,6 +36,7 @@ PO.station <- stations[stations$usaf == "726980", ]
 met2018 <- isd(usaf = PO.station$usaf, wban = PO.station$wban, year = 2018)
 head(met2018)
 # Select month
+# Just August 2018
 met201808 <- met2018[str_detect(met2018$date, "201808"), ]
 
 # Select meteorological parameters ----------------------------------------
@@ -49,7 +50,8 @@ met201808.tmp <- met201808.tmp[!(met201808.tmp > 900)]
 hist(met201808.tmp)
 boxplot(met201808.tmp)
 summary(met201808.tmp)
-sd(met201808.tmp)
+tair.mean <- mean(met201808.tmp)
+tair.error <- sd(met201808.tmp)
 
 # (ii) Wind speed
 # In m/s, but needs to be divided by 10, e.g., 0024 -> 2.4
@@ -61,7 +63,8 @@ met201808.ws <- met201808.ws[!(met201808.ws > 900)]
 hist(met201808.ws)
 boxplot(met201808.ws)
 summary(met201808.ws)
-sd(met201808.ws)
+u.mean <- mean(met201808.ws)
+u.error <- sd(met201808.ws)
 
 # (iii) Atmospheric pressure
 # In hPa (= mbar), but needs to be divided by 10, e.g., 10001 -> 1000.1
@@ -73,6 +76,5 @@ met201808.pr <- met201808.pr[!(met201808.pr > 9000)]
 hist(met201808.pr)
 boxplot(met201808.pr)
 summary(met201808.pr)
-sd(met201808.pr)
-
-
+P.mean <- mean(met201808.pr)
+P.error <- sd(met201808.pr)
