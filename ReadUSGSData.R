@@ -9,10 +9,15 @@ library(dataRetrieval) # read data from USGS
 # Read data from USGS station
 USGSPH <- "14211720" # Station @ WILLAMETTE RIVER AT PORTLAND, OR
 # Water temperature in C
+# August 2018
+Watertemp082018.2 <- readNWISdv(USGSPH, "00010",
+                                "2018-08-01", "2018-08-31")
+twater.mean <- mean(Watertemp082018.2$X_00010_00003)
+twater.error <- sd(Watertemp082018.2$X_00010_00003)
+
+# specific dates
 Watertemp082018 <- readNWISdv(USGSPH, "00010",
                           "2018-08-17", "2018-08-28") # 21, 22, 23, 24, 25
-Watertemp082018.2 <- readNWISdv(USGSPH, "00010",
-                              "2018-08-01", "2018-08-31") #
 Watertemp112018 <- readNWISdv(USGSPH, "00010",
                               "2018-11-24", "2018-12-03") # 27, 28, 30, 01
 Watertemp012019 <- readNWISdv(USGSPH, "00010",
