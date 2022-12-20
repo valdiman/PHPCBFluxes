@@ -1323,11 +1323,11 @@ ggplot(prof.wc.hi.ave, aes(x = congener, y = mean)) +
         axis.ticks.x=element_blank()) +
   annotate("text", x = 4, y = 0.19, label = "PCB 4", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 11, y = 0.15, label = "PCB 11", size = 3,
+  annotate("text", x = 11, y = 0.13, label = "PCB 11", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 36.2, y = 0.3, label = "PCBs 44+47+65",
+  annotate("text", x = 36.2, y = 0.25, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 41.3, y = 0.4, label = "PCBs 45+51",
+  annotate("text", x = 39, y = 0.45, label = "PCBs 45+51",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 44.3, y = 0.13, label = "PCB 52",
            size = 3, fontface = 1, angle = 90) +
