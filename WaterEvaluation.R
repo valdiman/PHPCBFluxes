@@ -1325,8 +1325,6 @@ ggplot(prof.wc.hi.ave, aes(x = congener, y = mean)) +
            fontface = 1, angle = 90) +
   annotate("text", x = 11, y = 0.15, label = "PCB 11", size = 3,
            fontface = 1, angle = 90) +
-  annotate("text", x = 19, y = 0.2, label = "PCBs 20+28",
-           size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 36.2, y = 0.3, label = "PCBs 44+47+65",
            size = 3, fontface = 1, angle = 90) +
   annotate("text", x = 41.3, y = 0.4, label = "PCBs 45+51",
