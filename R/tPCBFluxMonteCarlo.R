@@ -44,16 +44,18 @@ cp[,1] <- as.factor(c("PCB1", "PCB2", "PCB3", "PCB4", "PCB5", "PCB6", "PCB7", "P
 		      "PCB205", "PCB206", "PCB207", "PCB208", "PCB209"))
 
 # Add molecular weight
-cp[1:3,2] <- c(188.644)
-cp[4:14,2] <- c(223.088)
-cp[15:34,2] <- c(257.532)
-cp[35:64,2] <- c(291.976)
-cp[65:93,2] <- c(326.42)
-cp[94:124,2] <- c(360.864)
-cp[125:145,2] <- c(395.308)
-cp[146:155,2] <- c(429.752)
-cp[156:158,2] <- c(465.740544)
-cp[159,2] <- c(498.64)
+{
+  cp[1:3,2] <- c(188.644)
+  cp[4:14,2] <- c(223.088)
+  cp[15:34,2] <- c(257.532)
+  cp[35:64,2] <- c(291.976)
+  cp[65:93,2] <- c(326.42)
+  cp[94:124,2] <- c(360.864)
+  cp[125:145,2] <- c(395.308)
+  cp[146:155,2] <- c(429.752)
+  cp[156:158,2] <- c(465.740544)
+  cp[159,2] <- c(498.64)
+}
 
 # Add ortho Cl of individual PCB congeners
 cp[,3] <- c(1,	0,	0,	2,	1,	1,	1,	1,	1,	2,	0,
@@ -119,116 +121,131 @@ cp[,6] <- c(4.46,	4.69,	4.69,	4.65,	4.97,	5.06,	5.07,	5.07,	5.06,
 cp[,7] <- c(0.32)
 
 # Update names
-Congener <- cp$Congener
-MW.PCB <- cp$MW.PCB
-nOrtho.Cl <- cp$nOrtho.Cl
-H0.mean <- cp$H0.mean
-H0.error <- cp$H0.error
-Kow.mean <- cp$Kow.mean
-Kow.error <- cp$Kow.error
+{
+  Congener <- cp$Congener
+  MW.PCB <- cp$MW.PCB
+  nOrtho.Cl <- cp$nOrtho.Cl
+  H0.mean <- cp$H0.mean
+  H0.error <- cp$H0.error
+  Kow.mean <- cp$Kow.mean
+  Kow.error <- cp$Kow.error
+}
 
 # Water concentrations ----------------------------------------------------
-
 # Read water concentrations
 wc.raw <- read.csv("Data/WaterConcentrationV02.csv")
 # Different approaches to use the data
 # Prepare data [pg/L] = [ng/m3]
-wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
-wc.2 <- cbind(wc.raw$LocationID, wc.1)
-colnames(wc.2)[1] <- "LocationID"
+{
+  wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
+  wc.2 <- cbind(wc.raw$LocationID, wc.1)
+  colnames(wc.2)[1] <- "LocationID"
+}
 # (1) All samples
 # (i) Mean and standard deviation
-wc.ave <- sapply(wc.1, mean, na.rm = TRUE)
-wc.sd <- sapply(wc.1, sd, na.rm = TRUE)
-wc.3 <- data.frame(t(rbind(wc.ave, wc.sd)))
-C.PCB.water.mean <- wc.3$wc.ave
-C.PCB.water.sd <- wc.3$wc.sd
+{
+  wc.ave <- sapply(wc.1, mean, na.rm = TRUE)
+  wc.sd <- sapply(wc.1, sd, na.rm = TRUE)
+  wc.3 <- data.frame(t(rbind(wc.ave, wc.sd)))
+  C.PCB.water.mean <- wc.3$wc.ave
+  C.PCB.water.sd <- wc.3$wc.sd
+}
 # (ii) Geometric mean and geometric standard deviation
 # Log 10 individual PCBs
-wc.log <- log10(wc.1)
-wc.gm <- exp(sapply(wc.log, mean, na.rm = TRUE))
-wc.gsd <- exp(sapply(wc.log, sd, na.rm = TRUE))
-wc.4 <- data.frame(t(rbind(wc.gm, wc.gsd)))
-C.PCB.water.gm <- wc.4$wc.gm
-C.PCB.water.gsd <- wc.4$wc.gsd
+{
+  wc.log <- log10(wc.1)
+  wc.gm <- exp(sapply(wc.log, mean, na.rm = TRUE))
+  wc.gsd <- exp(sapply(wc.log, sd, na.rm = TRUE))
+  wc.4 <- data.frame(t(rbind(wc.gm, wc.gsd)))
+  C.PCB.water.gm <- wc.4$wc.gm
+  C.PCB.water.gsd <- wc.4$wc.gsd
+}
 # (2) Specific site
 # Selected site
-wc.POH001 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH001', ]
-wc.POH002 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH002', ]
-wc.POH003 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH003', ]
-wc.POH004 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH004', ]
-wc.POH005 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH005', ]
-wc.POH006 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH006', ]
-wc.POH007 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH007', ]
+{
+  wc.POH001 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH001', ]
+  wc.POH002 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH002', ]
+  wc.POH003 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH003', ]
+  wc.POH004 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH004', ]
+  wc.POH005 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH005', ]
+  wc.POH006 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH006', ]
+  wc.POH007 <- wc.2[wc.2$LocationID == 'WCPCB_OR-POH007', ]
+}
 # Calculate mean and sd for each site
 # WCPCB_OR-POH001
-wc.POH001.ave <- sapply(wc.POH001[, 2:160], mean, na.rm = TRUE)
-wc.POH001.sd <- sapply(wc.POH001[, 2:160], sd, na.rm = TRUE)
-wc.POH001.2 <- data.frame(t(rbind(wc.POH001.ave, wc.POH001.sd)))
-C.PCB.water.POH001.mean <- wc.POH001.2$wc.POH001.ave
-C.PCB.water.POH001.sd <- wc.POH001.2$wc.POH001.sd
-# WCPCB_OR-POH002
-wc.POH002.ave <- sapply(wc.POH002[, 2:160], mean, na.rm = TRUE)
-wc.POH002.sd <- sapply(wc.POH002[, 2:160], sd, na.rm = TRUE)
-wc.POH002.2 <- data.frame(t(rbind(wc.POH002.ave, wc.POH002.sd)))
-C.PCB.water.POH002.mean <- wc.POH002.2$wc.POH002.ave
-C.PCB.water.POH002.sd <- wc.POH002.2$wc.POH002.sd
-# WCPCB_OR-POH003
-wc.POH003.ave <- sapply(wc.POH003[, 2:160], mean, na.rm = TRUE)
-wc.POH003.sd <- sapply(wc.POH003[, 2:160], sd, na.rm = TRUE)
-wc.POH003.2 <- data.frame(t(rbind(wc.POH003.ave, wc.POH003.sd)))
-C.PCB.water.POH003.mean <- wc.POH003.2$wc.POH003.ave
-C.PCB.water.POH003.sd <- wc.POH003.2$wc.POH003.sd
-# WCPCB_OR-POH004
-wc.POH004.ave <- sapply(wc.POH004[, 2:160], mean, na.rm = TRUE)
-wc.POH004.sd <- sapply(wc.POH004[, 2:160], sd, na.rm = TRUE)
-wc.POH004.2 <- data.frame(t(rbind(wc.POH004.ave, wc.POH004.sd)))
-C.PCB.water.POH004.mean <- wc.POH004.2$wc.POH004.ave
-C.PCB.water.POH004.sd <- wc.POH004.2$wc.POH004.sd
-# WCPCB_OR-POH005
-wc.POH005.ave <- sapply(wc.POH005[, 2:160], mean, na.rm = TRUE)
-wc.POH005.sd <- sapply(wc.POH005[, 2:160], sd, na.rm = TRUE)
-wc.POH005.2 <- data.frame(t(rbind(wc.POH005.ave, wc.POH005.sd)))
-C.PCB.water.POH005.mean <- wc.POH005.2$wc.POH005.ave
-C.PCB.water.POH005.sd <- wc.POH005.2$wc.POH005.sd
-# WCPCB_OR-POH006
-wc.POH006.ave <- sapply(wc.POH006[, 2:160], mean, na.rm = TRUE)
-wc.POH006.sd <- sapply(wc.POH006[, 2:160], sd, na.rm = TRUE)
-wc.POH006.2 <- data.frame(t(rbind(wc.POH006.ave, wc.POH006.sd)))
-C.PCB.water.POH006.mean <- wc.POH006.2$wc.POH006.ave
-C.PCB.water.POH006.sd <- wc.POH006.2$wc.POH006.sd
-# WCPCB_OR-POH007
-wc.POH007.ave <- sapply(wc.POH007[, 2:160], mean, na.rm = TRUE)
-wc.POH007.sd <- sapply(wc.POH007[, 2:160], sd, na.rm = TRUE)
-wc.POH007.2 <- data.frame(t(rbind(wc.POH007.ave, wc.POH007.sd)))
-C.PCB.water.POH007.mean <- wc.POH007.2$wc.POH007.ave
-C.PCB.water.POH007.sd <- wc.POH007.2$wc.POH007.sd
+{
+  wc.POH001.ave <- sapply(wc.POH001[, 2:160], mean, na.rm = TRUE)
+  wc.POH001.sd <- sapply(wc.POH001[, 2:160], sd, na.rm = TRUE)
+  wc.POH001.2 <- data.frame(t(rbind(wc.POH001.ave, wc.POH001.sd)))
+  C.PCB.water.POH001.mean <- wc.POH001.2$wc.POH001.ave
+  C.PCB.water.POH001.sd <- wc.POH001.2$wc.POH001.sd
+  # WCPCB_OR-POH002
+  wc.POH002.ave <- sapply(wc.POH002[, 2:160], mean, na.rm = TRUE)
+  wc.POH002.sd <- sapply(wc.POH002[, 2:160], sd, na.rm = TRUE)
+  wc.POH002.2 <- data.frame(t(rbind(wc.POH002.ave, wc.POH002.sd)))
+  C.PCB.water.POH002.mean <- wc.POH002.2$wc.POH002.ave
+  C.PCB.water.POH002.sd <- wc.POH002.2$wc.POH002.sd
+  # WCPCB_OR-POH003
+  wc.POH003.ave <- sapply(wc.POH003[, 2:160], mean, na.rm = TRUE)
+  wc.POH003.sd <- sapply(wc.POH003[, 2:160], sd, na.rm = TRUE)
+  wc.POH003.2 <- data.frame(t(rbind(wc.POH003.ave, wc.POH003.sd)))
+  C.PCB.water.POH003.mean <- wc.POH003.2$wc.POH003.ave
+  C.PCB.water.POH003.sd <- wc.POH003.2$wc.POH003.sd
+  # WCPCB_OR-POH004
+  wc.POH004.ave <- sapply(wc.POH004[, 2:160], mean, na.rm = TRUE)
+  wc.POH004.sd <- sapply(wc.POH004[, 2:160], sd, na.rm = TRUE)
+  wc.POH004.2 <- data.frame(t(rbind(wc.POH004.ave, wc.POH004.sd)))
+  C.PCB.water.POH004.mean <- wc.POH004.2$wc.POH004.ave
+  C.PCB.water.POH004.sd <- wc.POH004.2$wc.POH004.sd
+  # WCPCB_OR-POH005
+  wc.POH005.ave <- sapply(wc.POH005[, 2:160], mean, na.rm = TRUE)
+  wc.POH005.sd <- sapply(wc.POH005[, 2:160], sd, na.rm = TRUE)
+  wc.POH005.2 <- data.frame(t(rbind(wc.POH005.ave, wc.POH005.sd)))
+  C.PCB.water.POH005.mean <- wc.POH005.2$wc.POH005.ave
+  C.PCB.water.POH005.sd <- wc.POH005.2$wc.POH005.sd
+  # WCPCB_OR-POH006
+  wc.POH006.ave <- sapply(wc.POH006[, 2:160], mean, na.rm = TRUE)
+  wc.POH006.sd <- sapply(wc.POH006[, 2:160], sd, na.rm = TRUE)
+  wc.POH006.2 <- data.frame(t(rbind(wc.POH006.ave, wc.POH006.sd)))
+  C.PCB.water.POH006.mean <- wc.POH006.2$wc.POH006.ave
+  C.PCB.water.POH006.sd <- wc.POH006.2$wc.POH006.sd
+  # WCPCB_OR-POH007
+  wc.POH007.ave <- sapply(wc.POH007[, 2:160], mean, na.rm = TRUE)
+  wc.POH007.sd <- sapply(wc.POH007[, 2:160], sd, na.rm = TRUE)
+  wc.POH007.2 <- data.frame(t(rbind(wc.POH007.ave, wc.POH007.sd)))
+  C.PCB.water.POH007.mean <- wc.POH007.2$wc.POH007.ave
+  C.PCB.water.POH007.sd <- wc.POH007.2$wc.POH007.sd
+}
 
 # (3) Average of the three highest samples
 # WCPCB_OR-POH003 8/22/18, WCPCB_OR-POH004 8/21/18 &
 # WCPCB_OR-POH005 8/23/18
-wc.hi <- wc.2[c(7, 10, 13), 2:160]
-C.PCB.water.hi.ave <- sapply(wc.hi, mean)
-C.PCB.water.hi.sd <- sapply(wc.hi, sd)
-
-# Select water concentration to be used
-C.PCB.water.ave <- C.PCB.water.hi.ave
-C.PCB.water.error <- C.PCB.water.hi.sd
+{
+  wc.hi <- wc.2[c(7, 10, 13), 2:160]
+  C.PCB.water.hi.ave <- sapply(wc.hi, mean)
+  C.PCB.water.hi.sd <- sapply(wc.hi, sd)
+  
+  # Select water concentration to be used
+  C.PCB.water.ave <- C.PCB.water.hi.ave
+  C.PCB.water.error <- C.PCB.water.hi.sd
+}
 
 # Meteorological data -----------------------------------------------------
 # Data obtained from ReadNOAAData.R data and ReadUSGSData.R codes
 # 2018-08
-tair.mean <- 21.3 # C, data from NOAA
-tair.error <- 5.27 # C, data from NOAA
-twater.mean <- 23.24 # C, data from USGS
-twater.error <- 1.29 # C, data from USGS
-u.mean <- 2.35 # m/s, data from NOAA
-u.error <- 1.58 # m/s, data from NOAA
-# Modify u @6.7 m to @10 m
-u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
-u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
-P.mean <- 1016 # mbar, data from NOAA
-P.error <- 3.23 # mbar, data from NOAA
+{
+  tair.mean <- 21.3 # C, data from NOAA
+  tair.error <- 5.27 # C, data from NOAA
+  twater.mean <- 23.24 # C, data from USGS
+  twater.error <- 1.29 # C, data from USGS
+  u.mean <- 2.35 # m/s, data from NOAA
+  u.error <- 1.58 # m/s, data from NOAA
+  # Modify u @6.7 m to @10 m
+  u10.mean <- (10.4/(log(6.7) + 8.1))*u.mean
+  u10.error <- (10.4/(log(6.7) + 8.1))*u.error 
+  P.mean <- 1016 # mbar, data from NOAA
+  P.error <- 3.23 # mbar, data from NOAA
+}
 
 # Flux calculations -------------------------------------------------------
 
@@ -372,12 +389,14 @@ names(tPCBFlux) <- c("Mean (ng/m2/d)", "Std (ng/m2/d)",
 print(tPCBFlux)
 
 # Plots -------------------------------------------------------------------
-
 # Histogram
-hist(as.numeric(final.result[,1]), main = "Volatilization Flux Total PCBs",
-     xlab = "Volatilization Flux Total PCB (ng/m2/d)", border = "blue", col = "green",
-     xlim = c(min(as.numeric(final.result[,1])), max(as.numeric(final.result[,1]))))
-abline(v = median(as.numeric(final.result[,1])), col = "blue", lwd = 3)
-abline(v = quantile(as.numeric(final.result[,1]), 0.025), col = "red", lwd = 3)
-abline(v = quantile(as.numeric(final.result[,1]), 0.975), col = "red", lwd = 3)
-abline(v = 0, col = "black", lwd = 3)
+{
+  hist(as.numeric(final.result[,1]), main = "Volatilization Flux Total PCBs",
+       xlab = "Volatilization Flux Total PCB (ng/m2/d)", border = "blue", col = "green",
+       xlim = c(min(as.numeric(final.result[,1])), max(as.numeric(final.result[,1]))))
+  abline(v = median(as.numeric(final.result[,1])), col = "blue", lwd = 3)
+  abline(v = quantile(as.numeric(final.result[,1]), 0.025), col = "red", lwd = 3)
+  abline(v = quantile(as.numeric(final.result[,1]), 0.975), col = "red", lwd = 3)
+  abline(v = 0, col = "black", lwd = 3)
+}
+
