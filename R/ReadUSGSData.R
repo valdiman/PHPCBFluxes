@@ -62,5 +62,3 @@ WaterVeloc012019 <- readNWISdv(USGSPH, "72255",
                                  "2019-01-25", "2019-02-20")
 WaterVeloc2022 <- readNWISdv(USGSPH, "72255",
                            "2022-06-01", "2022-09-01")
-
-
