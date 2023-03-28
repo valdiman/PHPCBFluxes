@@ -130,7 +130,7 @@ Kow.error <- cp$Kow.error
 # Water concentrations ----------------------------------------------------
 
 # Read water concentrations
-wc.raw <- read.csv("WaterConcentrationV02.csv")
+wc.raw <- read.csv("Data/WaterConcentrationV02.csv")
 # Different approaches to use the data
 # Prepare data [pg/L] = [ng/m3]
 wc.1 <- subset(wc.raw, select = -c(SampleID:Units))
