@@ -11,10 +11,12 @@ install.packages("dplyr")
 install.packages("stringr")
 
 # Libraries
-library(rnoaa)
-library(leaflet) # to plot ISD stations
-library(dplyr)
-library(stringr) # function str_detect
+{
+  library(rnoaa)
+  library(leaflet) # to plot ISD stations
+  library(dplyr)
+  library(stringr) # function str_detect
+}
 
 # Read data ---------------------------------------------------------------
 # Read all station
