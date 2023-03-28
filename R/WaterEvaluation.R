@@ -7,13 +7,15 @@ install.packages("ggmap")
 install.packages("ggrepel")
 
 # Libraries
-library(ggplot2)
-library(ggmap) # make_bbox
-library(ggrepel) #geom_label_repel
+{
+  library(ggplot2)
+  library(ggmap) # make_bbox
+  library(ggrepel) #geom_label_repel
+}
 
 # Read data ---------------------------------------------------------------
 # Read water concentrations
-wc.raw <- read.csv("WaterConcentrationV02.csv")
+wc.raw <- read.csv("Data/WaterConcentrationV02.csv")
 # Select  locations, sampling date, lat, long and PCBs
 # PCBs: 4, 11, 20+28, 44+47+65, 45+51, 52, 68 & tPCB
 PCB.PO <- data.frame(cbind(wc.raw$LocationID, wc.raw$SampleDate, wc.raw$SampleDate,
