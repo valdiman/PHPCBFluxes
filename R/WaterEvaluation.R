@@ -68,7 +68,7 @@ ggmap(PO.map) +
              shape = 21, color = "red",
              fill = "white", size = 1.75, stroke = 0.75) +
   geom_label_repel(aes(x = Longitude, y = Latitude, label = Site),
-                   data = tPCB.mean, family = 'Times', size = 1, 
+                   data = PCB.PO.mean, family = 'Times', size = 1, 
                    box.padding = 0.2, point.padding = 0.3,
                    segment.color = 'grey50')
 # (2) Map w/average of PCB concentration
