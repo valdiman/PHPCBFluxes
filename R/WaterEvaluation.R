@@ -133,7 +133,7 @@ ggmap(PO.map) +
   geom_point(data = PCB.PO.mean, aes(x = Longitude, y = Latitude,
                                    size = tPCB.ave), alpha = 1,
              color  = "red") +
-  scale_size_area(name = "Ave. Total PCBs \n2018-2019 (pg/L)") +
+  scale_size_area(name = "Ave. Total PCBs (n = 3)\n2018-2019 (pg/L)") +
   xlab("Longitude") +
   ylab("Latitude")
 
@@ -417,13 +417,13 @@ ggplot(PCB.PO, aes(x = Site, y = log10(PCB68), group = SampleDate2)) +
   theme(axis.ticks = element_line(linewidth = 0.8, color = "black"), 
         axis.ticks.length = unit(0.2, "cm"))
 # tPCB
-ggplot(PCB.PO, aes(x = Site, y = log10(tPCB), group = SampleDate2)) + 
+ggplot(PCB.PO, aes(x = Site, y = tPCB, group = SampleDate2)) + 
   geom_point(aes(color = SampleDate2), shape = 1, size  = 2) +
   labs(color = "Date") +
   theme_bw() +
   xlab(expression("")) +
   theme(aspect.ratio = 10/18) +
-  ylab(expression(bold("log10"*Sigma*"PCB (pg/L)"))) +
+  ylab(expression(bold(Sigma*"PCB (pg/L)"))) +
   theme(axis.text.y = element_text(face = "bold", size = 9),
         axis.title.y = element_text(face = "bold", size = 9)) +
   theme(axis.text.x = element_text(face = "bold", size = 8,
