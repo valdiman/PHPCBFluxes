@@ -427,26 +427,26 @@ ggplot(final.result, aes(x = Congener, y = `Mean (ng/m2/d)`)) +
                 width = 0.9, position = position_dodge(0.9)) +
   xlab("") +
   theme_bw() +
-  theme(aspect.ratio = 5/25) +
+  theme(aspect.ratio = 7/25) +
   ylab(expression(bold("PCBi flux (ng/m"^2*"/d)"))) +
   theme(axis.text.y = element_text(face = "bold", size = 10),
         axis.title.y = element_text(face = "bold", size = 10)) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) +
-  annotate("text", x = 4, y = 100, label = "PCB 4", size = 3,
+  annotate("text", x = 4, y = 110, label = "PCB 4", size = 2.5,
            fontface = 1, angle = 90) +
-  annotate("text", x = 11, y = 50, label = "PCB 11", size = 3,
+  annotate("text", x = 11, y = 70, label = "PCB 11", size = 2.5,
            fontface = 1, angle = 90) +
-  annotate("text", x = 18, y = 80, label = "PCB 19",
-           size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 37.4, y = 110, label = "PCBs 44+47+65",
-           size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 40, y = 180, label = "PCBs 45+51",
-           size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 44, y = 50, label = "PCB 52",
-           size = 3, fontface = 1, angle = 90) +
-  annotate("text", x = 57, y = 60, label = "PCB 68",
-           size = 3, fontface = 1, angle = 90)
+  annotate("text", x = 18, y = 110, label = "PCB 19",
+           size = 2.5, fontface = 1, angle = 90) +
+  annotate("text", x = 37, y = 140, label = "PCBs 44+47+65",
+           size = 2.5, fontface = 1, angle = 90) +
+  annotate("text", x = 41, y = 190, label = "PCBs 45+51",
+           size = 2.5, fontface = 1, angle = 90) +
+  annotate("text", x = 44, y = 60, label = "PCB 52",
+           size = 2.5, fontface = 1, angle = 90) +
+  annotate("text", x = 57, y = 70, label = "PCB 68",
+           size = 2.5, fontface = 1, angle = 90)
 
 
