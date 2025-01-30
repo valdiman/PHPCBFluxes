@@ -1,5 +1,9 @@
 # Create subfolder within the current working directory
 dir.create("R")
+dir.create("R/Flux")
+dir.create("R/ReadData")
+dir.create("R/Water")
+dir.create("R/Plots")
 dir.create("Data")
 dir.create("Output")
 dir.create("Output/Data")
