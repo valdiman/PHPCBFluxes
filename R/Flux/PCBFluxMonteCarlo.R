@@ -350,7 +350,7 @@ Sc.co2.water <- v.water/diff.co2
 # k600 calculations, u in [m/s], k600 originally [cm/h]
 # from Alin et al., 2011
 k600 <- (4.46 + 7.11*u)/60/60 # [cm/s]
-# Water side mass transfer (from eq. 20-24)
+# Water side mass transfer (from eq. 20-24a)
 if(u > 5){
   V.PCB.water <- k600*(Sc.PCB.water/Sc.co2.water)^(-0.5)  
 } else {
